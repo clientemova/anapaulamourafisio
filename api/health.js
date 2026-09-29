@@ -10,21 +10,48 @@ function hasSplitCredential() {
   );
 }
 
-module.exports = function handler(req, res) {
+function safeError(error) {
+  return {
+    code: error?.code || "unknown",
+    message: String(error?.message || error || "Erro desconhecido").slice(0, 400)
+  };
+}
+
+async function testFirestore() {
+  try {
+    const { admin, db } = require("./_firebase");
+    const ref = db.collection("_diagnostics").doc("vercel-health");
+    await ref.set({
+      checkedAt: admin.firestore.FieldValue.serverTimestamp(),
+      source: "vercel-health"
+    });
+    await ref.delete();
+    return { ok: true, write: "ok" };
+  } catch (error) {
+    return { ok: false, write: "falhou", error: safeError(error) };
+  }
+}
+
+module.exports = async function handler(req, res) {
   const firebaseConfigured = hasBase64Credential() || hasSplitCredential();
   const initialPasswordConfigured = Boolean(process.env.INITIAL_ADMIN_PASSWORD);
+  const firestore = firebaseConfigured
+    ? await testFirestore()
+    : { ok: false, write: "nao testado" };
+  const ok = firebaseConfigured && firestore.ok;
 
-  res.writeHead(firebaseConfigured ? 200 : 500, {
+  res.writeHead(ok ? 200 : 500, {
     "Content-Type": "application/json; charset=utf-8"
   });
 
   res.end(JSON.stringify({
-    ok: firebaseConfigured,
+    ok,
     firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
     firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
     initialAdminPassword: initialPasswordConfigured ? "configurado" : "nao configurado",
-    message: firebaseConfigured
-      ? "Credenciais do Firebase encontradas na Vercel."
-      : "Configure FIREBASE_SERVICE_ACCOUNT_BASE64 na Vercel e faca um novo deploy."
+    firestore,
+    message: ok
+      ? "Firebase e Firestore funcionando na Vercel."
+      : "A Vercel ainda nao conseguiu gravar no Firestore. Confira credenciais, permissao da conta de servico e se o Firestore Database foi criado."
   }));
 };

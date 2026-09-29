@@ -18,6 +18,23 @@ function sendJson(res, status, payload, headers = {}) {
   res.end(JSON.stringify(payload));
 }
 
+function safeApiError(error) {
+  const message = String(error?.message || error || "");
+  if (message.includes("Could not load the default credentials")) {
+    return "Credenciais do Firebase nao configuradas na Vercel.";
+  }
+  if (message.includes("The database") || message.includes("NOT_FOUND")) {
+    return "Firestore Database nao encontrado. Crie o banco no Firebase.";
+  }
+  if (message.includes("PERMISSION_DENIED") || error?.code === 7) {
+    return "A conta de servico nao tem permissao para gravar no Firestore.";
+  }
+  if (message.includes("DECODER routines") || message.includes("private_key")) {
+    return "Chave privada do Firebase invalida. Refaça o Base64 do JSON da conta de servico.";
+  }
+  return "Nao foi possivel concluir a operacao. Verifique /api/health e os logs da Vercel.";
+}
+
 function makeId(prefix) {
   return `${prefix}_${crypto.randomBytes(6).toString("hex")}`;
 }
@@ -476,6 +493,9 @@ module.exports = async function handler(req, res) {
     await handleApi(req, res);
   } catch (error) {
     console.error(error);
-    sendJson(res, 500, { error: "Nao foi possivel concluir a operacao." });
+    sendJson(res, 500, {
+      error: safeApiError(error),
+      code: error?.code || "unknown"
+    });
   }
 };
