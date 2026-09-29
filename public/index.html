@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ana Paula Fisioterapeuta</title>
+    <meta name="description" content="Sistema local de gestao de pacientes de fisioterapia.">
+    <link rel="icon" href="/logo-sistema-v2.png" type="image/png">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="is-locked">
+    <section class="auth-screen" id="authScreen" hidden>
+      <form class="auth-card" id="authForm">
+        <div class="brand auth-brand">
+          <img class="brand-logo" src="/logo-sistema-v2.png" alt="Dra. Paula Moura Fisioterapeuta">
+          <div>
+            <strong>Ana Paula Fisioterapeuta</strong>
+            <span>Acesso protegido</span>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow" id="authEyebrow">Seguranca</p>
+          <h1 id="authTitle">Entrar na plataforma</h1>
+          <p class="muted" id="authText">Digite a senha para acessar os dados da clinica.</p>
+        </div>
+
+        <label>
+          Senha
+          <input id="authPassword" name="password" type="password" required minlength="6" autocomplete="current-password">
+        </label>
+
+        <button class="button primary" id="authSubmit" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <div class="brand">
+          <img class="brand-logo" src="/logo-sistema-v2.png" alt="Dra. Paula Moura Fisioterapeuta">
+          <div>
+            <strong>Ana Paula Fisioterapeuta</strong>
+            <span>Clinica local</span>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="Secoes">
+          <a class="nav-link is-active" href="#painel" data-view-link="painel">
+            <span aria-hidden="true">▦</span>
+            Painel
+          </a>
+          <a class="nav-link" href="#pacientes" data-view-link="pacientes">
+            <span aria-hidden="true">◎</span>
+            Pacientes
+          </a>
+          <a class="nav-link" href="#tratamentos" data-view-link="tratamentos">
+            <span aria-hidden="true">✦</span>
+            Tratamentos
+          </a>
+          <a class="nav-link" href="#agenda" data-view-link="agenda">
+            <span aria-hidden="true">□</span>
+            Agenda
+          </a>
+        </nav>
+
+        <div class="local-note">
+          <strong>Uso interno</strong>
+          <span>Os dados ficam neste computador, no arquivo local da aplicacao.</span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Fisioterapia</p>
+            <h1>Gestao de pacientes</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="button ghost" id="changePasswordButton" type="button">Trocar senha</button>
+            <button class="button ghost" id="logoutButton" type="button">Sair</button>
+            <button class="button ghost" id="refreshButton" type="button">Atualizar</button>
+            <button class="button primary" id="newPatientButton" type="button">Novo paciente</button>
+          </div>
+        </header>
+
+        <section class="view is-visible" id="view-painel" aria-labelledby="painel-title">
+          <div class="section-head">
+            <div>
+              <h2 id="painel-title">Painel de hoje</h2>
+              <p>Acompanhe atendimentos, pacientes ativos e evolucao clinica.</p>
+            </div>
+          </div>
+
+          <div class="metric-grid" id="metricGrid"></div>
+
+          <div class="split-layout">
+            <section class="panel" aria-labelledby="agenda-hoje-title">
+              <div class="panel-head">
+                <h3 id="agenda-hoje-title">Agenda de hoje</h3>
+                <button class="icon-button" id="quickAppointmentButton" title="Novo agendamento" aria-label="Novo agendamento" type="button">+</button>
+              </div>
+              <div id="todayAppointments" class="stack"></div>
+            </section>
+
+            <section class="panel" aria-labelledby="prioridades-title">
+              <div class="panel-head">
+                <h3 id="prioridades-title">Prioridades clinicas</h3>
+              </div>
+              <div id="priorityPatients" class="stack"></div>
+            </section>
+          </div>
+
+          <section class="panel upcoming-panel" aria-labelledby="proximos-agendamentos-title">
+            <div class="panel-head">
+              <div>
+                <h3 id="proximos-agendamentos-title">Proximos agendamentos</h3>
+                <p class="meta">Horarios futuros organizados por dia.</p>
+              </div>
+              <button class="button ghost" type="button" data-view-link-button="agenda">Ver agenda</button>
+            </div>
+            <div id="upcomingAppointments" class="upcoming-list"></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-pacientes" aria-labelledby="pacientes-title">
+          <div class="patients-layout">
+            <section class="panel patient-index" aria-labelledby="pacientes-title">
+              <div class="section-head compact">
+                <div>
+                  <h2 id="pacientes-title">Pacientes</h2>
+                  <p>Busque, filtre e acompanhe cada plano terapeutico.</p>
+                </div>
+              </div>
+
+              <div class="toolbar">
+                <label class="search-field">
+                  <span class="sr-only">Buscar paciente</span>
+                  <input id="searchInput" type="search" placeholder="Buscar por nome, diagnostico ou terapeuta">
+                </label>
+                <select id="statusFilter" aria-label="Filtrar por status">
+                  <option value="todos">Todos</option>
+                  <option value="ativo">Ativos</option>
+                  <option value="pausado">Pausados</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+
+              <div class="patient-list" id="patientList"></div>
+            </section>
+
+            <section class="panel patient-detail" aria-live="polite" id="patientDetail"></section>
+          </div>
+        </section>
+
+        <section class="view" id="view-agenda" aria-labelledby="agenda-title">
+          <div class="section-head">
+            <div>
+              <h2 id="agenda-title">Agenda</h2>
+              <p>Controle os atendimentos marcados e o status de cada horario.</p>
+            </div>
+            <button class="button primary" id="newAppointmentButton" type="button">Novo agendamento</button>
+          </div>
+
+          <section class="panel">
+            <div class="toolbar">
+              <input id="agendaDate" type="date" aria-label="Data da agenda">
+              <select id="agendaStatus" aria-label="Filtrar status da agenda">
+                <option value="todos">Todos os status</option>
+                <option value="agendado">Agendado</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="realizado">Realizado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div class="schedule-list" id="scheduleList"></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-tratamentos" aria-labelledby="tratamentos-title">
+          <div class="section-head">
+            <div>
+              <h2 id="tratamentos-title">Tratamentos</h2>
+              <p>Registre avaliacoes especificas, vinculadas ao paciente.</p>
+            </div>
+            <button class="button primary" id="newAssessmentButton" type="button">Nova avaliacao</button>
+          </div>
+
+          <section class="panel">
+            <div class="toolbar">
+              <select id="treatmentFilter" aria-label="Filtrar tratamento">
+                <option value="todos">Todos os tratamentos</option>
+                <option value="Limpeza de pele">Limpeza de pele</option>
+                <option value="Fisioterapia geriatrica">Fisioterapia geriatrica</option>
+              </select>
+              <select id="treatmentPatientFilter" aria-label="Filtrar paciente"></select>
+            </div>
+            <div class="schedule-list" id="treatmentList"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="patientDialog" class="dialog">
+      <form method="dialog" class="dialog-box" id="patientForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Cadastro</p>
+            <h2 id="patientDialogTitle">Novo paciente</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <input type="hidden" name="id">
+
+        <div class="form-grid">
+          <label>
+            Nome
+            <input name="name" required autocomplete="name">
+          </label>
+          <label>
+            Telefone
+            <input name="phone" autocomplete="tel">
+          </label>
+          <label>
+            Nascimento
+            <input name="birthDate" type="date">
+          </label>
+          <label>
+            CPF
+            <input name="cpf" inputmode="numeric">
+          </label>
+          <label>
+            Profissao
+            <input name="occupation">
+          </label>
+          <label>
+            Terapeuta
+            <input name="therapist">
+          </label>
+          <label class="wide">
+            Queixa ou diagnostico
+            <input name="condition">
+          </label>
+          <label class="wide">
+            Objetivos terapeuticos
+            <textarea name="goals" rows="3"></textarea>
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option value="ativo">Ativo</option>
+              <option value="pausado">Pausado</option>
+              <option value="alta">Alta</option>
+            </select>
+          </label>
+          <label>
+            Dor atual
+            <input name="pain" type="number" min="0" max="10" value="0">
+          </label>
+          <label>
+            Frequencia
+            <input name="frequency" placeholder="Ex.: 2x por semana">
+          </label>
+          <label>
+            Inicio
+            <input name="startedAt" type="date">
+          </label>
+          <label class="wide">
+            Observacoes
+            <textarea name="notes" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar paciente</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="sessionDialog" class="dialog">
+      <form method="dialog" class="dialog-box" id="sessionForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Evolucao</p>
+            <h2>Registrar atendimento</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <input type="hidden" name="patientId">
+        <input type="hidden" name="clientSignature">
+        <input type="hidden" name="professionalSignature">
+
+        <div class="form-grid">
+          <label>
+            Data
+            <input name="date" type="date" required>
+          </label>
+          <label>
+            Dor
+            <input name="pain" type="number" min="0" max="10" value="0">
+          </label>
+          <label class="wide">
+            Tipo
+            <select name="type">
+              <option>Evolucao</option>
+              <option>Avaliacao inicial</option>
+              <option>Reavaliacao</option>
+              <option>Alta</option>
+            </select>
+          </label>
+          <label class="wide">
+            Resumo clinico
+            <textarea name="summary" rows="4" required></textarea>
+          </label>
+          <label class="wide">
+            Conduta e plano
+            <textarea name="plan" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar evolucao</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="appointmentDialog" class="dialog">
+      <form method="dialog" class="dialog-box" id="appointmentForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Agenda</p>
+            <h2>Novo agendamento</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <div class="form-grid">
+          <label class="wide">
+            Paciente
+            <select name="patientId" required></select>
+          </label>
+          <label>
+            Data
+            <input name="date" type="date" required>
+          </label>
+          <label>
+            Hora
+            <input name="time" type="time" required>
+          </label>
+          <label>
+            Duracao
+            <input name="duration" type="number" min="15" step="5" value="50">
+          </label>
+          <label>
+            Tratamento
+            <select name="treatment">
+              <option value="Fisioterapia">Fisioterapia</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Fisioterapia geriatrica">Fisioterapia geriatrica</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option value="agendado">Agendado</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="realizado">Realizado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </label>
+          <label>
+            Terapeuta
+            <input name="therapist">
+          </label>
+          <label>
+            Sala
+            <input name="room">
+          </label>
+          <label class="wide">
+            Observacoes
+            <textarea name="notes" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar agendamento</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="assessmentChoiceDialog" class="dialog small-dialog">
+      <form method="dialog" class="dialog-box" id="assessmentChoiceForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Tratamentos</p>
+            <h2>Escolha a avaliacao</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <div class="assessment-options">
+          <button class="assessment-option" type="button" data-start-assessment="skin">
+            <strong>Limpeza de pele</strong>
+            <span>Ficha estetica ja cadastrada no sistema.</span>
+          </button>
+          <button class="assessment-option" type="button" data-start-assessment="geriatric">
+            <strong>Fisioterapia geriatrica</strong>
+            <span>Avaliacao funcional, quedas, forca, cognicao e plano.</span>
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="skinAssessmentDialog" class="dialog">
+      <form method="dialog" class="dialog-box" id="skinAssessmentForm" novalidate>
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Limpeza de pele</p>
+            <h2>Ficha de avaliacao</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <input type="hidden" name="patientId">
+        <input type="hidden" name="assessmentType" value="skin">
+        <input type="hidden" name="clientSignature">
+        <input type="hidden" name="professionalSignature">
+
+        <div class="form-section">
+          <h3>Identificacao</h3>
+          <div class="form-grid">
+            <label class="wide">
+              Paciente
+              <select id="skinAssessmentPatient"></select>
+            </label>
+            <label>
+              Data da avaliacao
+              <input name="date" type="date">
+            </label>
+            <label>
+              Sexo
+              <select name="sex">
+                <option value="">Nao informado</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Historico de saude</h3>
+          <div class="form-grid">
+            <fieldset>
+              <legend>Possui alguma doenca?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="diseaseAnswer" value="Sim"> Sim</label>
+                <label><input type="radio" name="diseaseAnswer" value="Nao"> Nao</label>
+              </div>
+              <input name="diseaseDetails" placeholder="Qual?">
+            </fieldset>
+            <fieldset>
+              <legend>Uso de medicamentos continuos?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="medicationAnswer" value="Sim"> Sim</label>
+                <label><input type="radio" name="medicationAnswer" value="Nao"> Nao</label>
+              </div>
+              <input name="medicationDetails" placeholder="Quais?">
+            </fieldset>
+            <fieldset>
+              <legend>Alergias?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="allergyAnswer" value="Sim"> Sim</label>
+                <label><input type="radio" name="allergyAnswer" value="Nao"> Nao</label>
+              </div>
+              <input name="allergyDetails" placeholder="Quais?">
+            </fieldset>
+            <fieldset>
+              <legend>Gestante?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="pregnant" value="Sim"> Sim</label>
+                <label><input type="radio" name="pregnant" value="Nao"> Nao</label>
+              </div>
+            </fieldset>
+            <fieldset class="wide-field">
+              <legend>Ja realizou procedimentos esteticos faciais?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="previousFacialProcedureAnswer" value="Sim"> Sim</label>
+                <label><input type="radio" name="previousFacialProcedureAnswer" value="Nao"> Nao</label>
+              </div>
+              <input name="previousFacialProcedureDetails" placeholder="Quais?">
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Habitos e rotina de cuidados</h3>
+          <div class="form-grid">
+            <fieldset>
+              <legend>Usa protetor solar diariamente?</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="sunscreen" value="Sim"> Sim</label>
+                <label><input type="radio" name="sunscreen" value="Nao"> Nao</label>
+              </div>
+            </fieldset>
+            <label>
+              Frequencia de limpeza facial
+              <select name="cleaningFrequency">
+                <option value="">Selecione</option>
+                <option>1x ao dia</option>
+                <option>2x ao dia</option>
+                <option>Raramente</option>
+              </select>
+            </label>
+            <label class="wide">
+              Produtos que utiliza em casa
+              <textarea name="homeProducts" rows="2"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Avaliacao da pele</h3>
+          <fieldset class="checkbox-group">
+            <legend>Tipo de pele</legend>
+            <label><input type="checkbox" name="skinTypes" value="Normal"> Normal</label>
+            <label><input type="checkbox" name="skinTypes" value="Seca"> Seca</label>
+            <label><input type="checkbox" name="skinTypes" value="Oleosa"> Oleosa</label>
+            <label><input type="checkbox" name="skinTypes" value="Mista"> Mista</label>
+            <label><input type="checkbox" name="skinTypes" value="Acneica"> Acneica</label>
+            <label><input type="checkbox" name="skinTypes" value="Sensivel"> Sensivel</label>
+          </fieldset>
+          <fieldset class="checkbox-group">
+            <legend>Fototipo</legend>
+            <label><input type="radio" name="phototype" value="I"> I</label>
+            <label><input type="radio" name="phototype" value="II"> II</label>
+            <label><input type="radio" name="phototype" value="III"> III</label>
+            <label><input type="radio" name="phototype" value="IV"> IV</label>
+            <label><input type="radio" name="phototype" value="V"> V</label>
+            <label><input type="radio" name="phototype" value="VI"> VI</label>
+          </fieldset>
+          <fieldset class="checkbox-group">
+            <legend>Condicoes observadas</legend>
+            <label><input type="checkbox" name="observedConditions" value="Acne"> Acne</label>
+            <label><input type="checkbox" name="observedConditions" value="Comedoes"> Comedoes</label>
+            <label><input type="checkbox" name="observedConditions" value="Milias"> Milias</label>
+            <label><input type="checkbox" name="observedConditions" value="Manchas"> Manchas</label>
+            <label><input type="checkbox" name="observedConditions" value="Rugas/linhas de expressao"> Rugas/linhas</label>
+            <label><input type="checkbox" name="observedConditions" value="Flacidez"> Flacidez</label>
+            <label><input type="checkbox" name="observedConditions" value="Poros dilatados"> Poros dilatados</label>
+            <label><input type="checkbox" name="observedConditions" value="Oleosidade excessiva"> Oleosidade excessiva</label>
+            <label><input type="checkbox" name="observedConditions" value="Ressecamento"> Ressecamento</label>
+            <label><input type="checkbox" name="observedConditions" value="Sensibilidade"> Sensibilidade</label>
+            <label><input type="checkbox" name="observedConditions" value="Rosacea"> Rosacea</label>
+          </fieldset>
+          <label>
+            Outros
+            <input name="otherConditions">
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>Plano do tratamento</h3>
+          <div class="form-grid">
+            <label class="wide">
+              Diagnostico estetico
+              <textarea name="diagnosis" rows="2"></textarea>
+            </label>
+            <label class="wide">
+              Objetivo do tratamento
+              <textarea name="objective" rows="2"></textarea>
+            </label>
+          </div>
+          <fieldset class="checkbox-group">
+            <legend>Procedimento indicado</legend>
+            <label><input type="checkbox" name="indicatedProcedures" value="Limpeza de pele profunda"> Limpeza profunda</label>
+            <label><input type="checkbox" name="indicatedProcedures" value="Limpeza de pele hidratante"> Hidratante</label>
+            <label><input type="checkbox" name="indicatedProcedures" value="Limpeza de pele acneica"> Acneica</label>
+            <label><input type="checkbox" name="indicatedProcedures" value="Limpeza de pele calmante"> Calmante</label>
+            <label><input type="checkbox" name="indicatedProcedures" value="Limpeza de pele com peeling"> Com peeling</label>
+          </fieldset>
+          <div class="form-grid">
+            <label>
+              Outros procedimentos
+              <input name="otherProcedure">
+            </label>
+            <label>
+              Frequencia recomendada
+              <select name="recommendedFrequency">
+                <option value="">Selecione</option>
+                <option>Mensal</option>
+                <option>Bimestral</option>
+                <option>Trimestral</option>
+                <option>Conforme avaliacao profissional</option>
+              </select>
+            </label>
+            <label class="wide">
+              Orientacoes ao cliente
+              <textarea name="clientGuidance" rows="3"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Assinaturas</h3>
+          <div class="signature-grid">
+            <div class="signature-box">
+              <div class="signature-head">
+                <strong>Assinatura do cliente</strong>
+                <button class="button ghost" type="button" data-clear-signature="clientSignature">Limpar</button>
+              </div>
+              <canvas class="signature-pad" data-signature-pad="clientSignature" width="680" height="180" aria-label="Assinatura do cliente"></canvas>
+            </div>
+            <div class="signature-box">
+              <div class="signature-head">
+                <strong>Assinatura do profissional</strong>
+                <button class="button ghost" type="button" data-clear-signature="professionalSignature">Limpar</button>
+              </div>
+              <canvas class="signature-pad" data-signature-pad="professionalSignature" width="680" height="180" aria-label="Assinatura do profissional"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar avaliacao</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="geriatricAssessmentDialog" class="dialog">
+      <form method="dialog" class="dialog-box" id="geriatricAssessmentForm" novalidate>
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Fisioterapia geriatrica</p>
+            <h2>Ficha de avaliacao</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <input type="hidden" name="patientId">
+        <input type="hidden" name="assessmentType" value="geriatric">
+        <input type="hidden" name="geriatricProfessionalSignature">
+
+        <div class="form-section">
+          <h3>Dados do paciente</h3>
+          <div class="form-grid">
+            <label class="wide">
+              Paciente
+              <select id="geriatricAssessmentPatient"></select>
+            </label>
+            <label>
+              Data da avaliacao
+              <input name="date" type="date">
+            </label>
+            <label>
+              Sexo
+              <select name="sex">
+                <option value="">Nao informado</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+              </select>
+            </label>
+            <label class="wide">
+              Responsavel
+              <input name="responsible">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Queixa e historia</h3>
+          <div class="form-grid">
+            <label class="wide">
+              Queixa principal
+              <textarea name="complaint" rows="3"></textarea>
+            </label>
+            <label class="wide">
+              Historia da doenca atual
+              <textarea name="currentDiseaseHistory" rows="4"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Antecedentes e medicamentos</h3>
+          <fieldset class="checkbox-group">
+            <legend>Antecedentes</legend>
+            <label><input type="checkbox" name="antecedents" value="Hipertensao"> Hipertensao</label>
+            <label><input type="checkbox" name="antecedents" value="Diabetes"> Diabetes</label>
+            <label><input type="checkbox" name="antecedents" value="AVC"> AVC</label>
+            <label><input type="checkbox" name="antecedents" value="Parkinson"> Parkinson</label>
+            <label><input type="checkbox" name="antecedents" value="Alzheimer"> Alzheimer</label>
+          </fieldset>
+          <div class="form-grid">
+            <label>
+              Outros antecedentes
+              <input name="otherAntecedents">
+            </label>
+            <label class="wide">
+              Uso de medicamentos
+              <textarea name="medicationUse" rows="3"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Avaliacao funcional</h3>
+          <div class="form-grid">
+            <label>
+              Deambulacao
+              <select name="ambulation">
+                <option value="">Selecione</option>
+                <option>Independente</option>
+                <option>Auxilio</option>
+                <option>Nao deambula</option>
+              </select>
+            </label>
+            <fieldset>
+              <legend>Historico de quedas</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="fallsHistory" value="Sim"> Sim</label>
+                <label><input type="radio" name="fallsHistory" value="Nao"> Nao</label>
+              </div>
+              <input name="fallsCount" placeholder="Quantas?">
+            </fieldset>
+            <label>
+              Forca muscular MMSS
+              <input name="upperStrength">
+            </label>
+            <label>
+              Forca muscular MMII
+              <input name="lowerStrength">
+            </label>
+            <fieldset>
+              <legend>Amplitude de movimento</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="rangeOfMotion" value="Preservada"> Preservada</label>
+                <label><input type="radio" name="rangeOfMotion" value="Reduzida"> Reduzida</label>
+              </div>
+              <input name="rangeLocation" placeholder="Local">
+            </fieldset>
+            <label>
+              Avaliacao cognitiva
+              <select name="cognitive">
+                <option value="">Selecione</option>
+                <option>Preservada</option>
+                <option>Deficit leve</option>
+                <option>Moderado</option>
+                <option>Grave</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Conduta</h3>
+          <div class="form-grid">
+            <label class="wide">
+              Diagnostico fisioterapeutico
+              <textarea name="physioDiagnosis" rows="3"></textarea>
+            </label>
+            <label class="wide">
+              Objetivos
+              <textarea name="goals" rows="3"></textarea>
+            </label>
+            <label class="wide">
+              Plano de tratamento
+              <textarea name="treatmentPlan" rows="3"></textarea>
+            </label>
+            <label>
+              Frequencia
+              <select name="frequency">
+                <option value="">Selecione</option>
+                <option>1x</option>
+                <option>2x</option>
+                <option>3x</option>
+                <option>Outro</option>
+              </select>
+            </label>
+            <label>
+              Outra frequencia
+              <input name="frequencyOther">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Assinatura</h3>
+          <div class="signature-grid single-signature">
+            <div class="signature-box">
+              <div class="signature-head">
+                <strong>Assinatura do profissional</strong>
+                <button class="button ghost" type="button" data-clear-signature="geriatricProfessionalSignature">Limpar</button>
+              </div>
+              <canvas class="signature-pad" data-signature-pad="geriatricProfessionalSignature" width="680" height="180" aria-label="Assinatura do profissional"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar avaliacao</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="passwordDialog" class="dialog small-dialog">
+      <form method="dialog" class="dialog-box" id="passwordForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow">Seguranca</p>
+            <h2>Trocar senha</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
+        </div>
+
+        <div class="form-grid single">
+          <label>
+            Senha atual
+            <input name="currentPassword" type="password" required autocomplete="current-password">
+          </label>
+          <label>
+            Nova senha
+            <input name="newPassword" type="password" required minlength="6" autocomplete="new-password">
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
+          <button class="button primary" value="default" type="submit">Salvar nova senha</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
