@@ -21,9 +21,17 @@ function privateKeyFromEnv() {
   return String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
 }
 
+function normalizeServiceAccount(raw) {
+  return {
+    projectId: raw.projectId || raw.project_id,
+    clientEmail: raw.clientEmail || raw.client_email,
+    privateKey: String(raw.privateKey || raw.private_key || "").replace(/\\n/g, "\n")
+  };
+}
+
 function serviceAccountFromEnv() {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    return JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8"));
+    return normalizeServiceAccount(JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8")));
   }
 
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
