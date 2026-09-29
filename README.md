@@ -29,6 +29,8 @@ VERCEL_FIREBASE_PASSO_A_PASSO.md
 
 Na versao publicada, o navegador nao acessa o Firestore direto. A plataforma chama a API da Vercel, e a API usa credenciais seguras configuradas nas variaveis de ambiente.
 
+Na Vercel, configure tambem `INITIAL_ADMIN_PASSWORD`. Essa senha inicial e gravada no Firestore em formato protegido no primeiro acesso, e todos os dados da versao publicada ficam no banco Firebase.
+
 ## Observacoes importantes
 
 - Este sistema foi feito para rede interna. Evite expor a internet.

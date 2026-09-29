@@ -99,6 +99,22 @@ Marque para os ambientes:
 
 Depois clique em **Save**.
 
+4. Adicione tambem a senha inicial da plataforma:
+
+```text
+INITIAL_ADMIN_PASSWORD
+```
+
+Valor:
+
+```text
+digite a senha que voce quer usar para entrar no sistema
+```
+
+Essa senha inicial nao fica salva em arquivo local. No primeiro acesso da plataforma publicada, a API da Vercel grava uma versao protegida dessa senha no Firestore, dentro da colecao `appConfig`.
+
+Depois que confirmar que conseguiu entrar, voce pode remover `INITIAL_ADMIN_PASSWORD` da Vercel e fazer outro deploy. A senha protegida continuara salva no Firestore.
+
 ### Opcao alternativa
 
 Se preferir nao usar Base64, cadastre estas tres variaveis:
@@ -121,11 +137,51 @@ Quando terminar, abra a URL gerada pela Vercel.
 
 Ao abrir a plataforma pela primeira vez:
 
-1. Ela vai pedir para criar a senha.
-2. Crie a senha imediatamente.
+1. Entre com a senha configurada em `INITIAL_ADMIN_PASSWORD`.
+2. A senha protegida ja fica salva no Firestore.
 3. Depois disso, os dados ficam protegidos por login.
 
-Importante: antes da senha ser criada, qualquer pessoa com o link poderia criar a primeira senha.
+Se voce nao configurar `INITIAL_ADMIN_PASSWORD`, a plataforma ainda pode mostrar a tela de criar senha no primeiro acesso. Para web publicada, o recomendado e usar `INITIAL_ADMIN_PASSWORD`.
+
+## 9.1. Se aparecer "Nao foi possivel salvar" ao criar a senha
+
+Isso normalmente significa que a Vercel abriu o site, mas a API nao conseguiu gravar no Firebase.
+
+Confira nesta ordem:
+
+1. Na Vercel, abra o projeto.
+2. Va em **Settings > Environment Variables**.
+3. Confirme que existem as variaveis:
+
+```text
+FIREBASE_SERVICE_ACCOUNT_BASE64
+INITIAL_ADMIN_PASSWORD
+```
+
+4. Confirme que elas estao marcadas para **Production**.
+5. Clique em **Deployments**.
+6. Abra o ultimo deploy.
+7. Clique em **Redeploy**.
+
+Depois do redeploy, abra:
+
+```text
+https://SEU-SITE-DA-VERCEL.vercel.app/api/health
+```
+
+O esperado e aparecer:
+
+```json
+{
+  "ok": true,
+  "firebaseServiceAccountBase64": "configurado",
+  "initialAdminPassword": "configurado"
+}
+```
+
+Se aparecer `nao configurado`, a Vercel ainda nao recebeu a credencial ou a senha inicial.
+
+Se o `/api/health` estiver ok e mesmo assim nao salvar, confira no Firebase se o **Firestore Database** foi criado.
 
 ## 10. Importar os dados locais para o Firestore
 
@@ -158,6 +214,8 @@ treatmentAssessments
 appConfig
 authSessions
 ```
+
+Nada de pacientes, fichas, avaliacoes ou agendamentos fica salvo no computador na versao publicada pela Vercel. Esses dados ficam no Firestore.
 
 ## 12. Links uteis
 
