@@ -1,0 +1,21 @@
+{
+  "name": "gestao-fisio-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema web local para gestao de pacientes de fisioterapia.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:lan": "node server.js --host 0.0.0.0",
+    "vercel:dev": "vercel dev",
+    "check": "node --check server.js && node --check api/[...path].js && node --check api/_firebase.js && node --check api/_pdf.js",
+    "firebase:emulators": "npx firebase-tools emulators:start --only hosting,functions,firestore",
+    "firebase:deploy": "npx firebase-tools deploy --only hosting,functions,firestore:rules"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  },
+  "devDependencies": {
+    "vercel": "^48.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+node_modules/
+functions/node_modules/
+.firebase/
+.vercel/
+.env
+.env.local
+.env.*.local
+.runtimeconfig.json
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+server.log
+server-error.log
+tmp/
+data/auth.json
+data/*.json
+data/*.tmp
