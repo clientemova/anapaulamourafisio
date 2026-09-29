@@ -72,6 +72,25 @@ async function writeAuth(auth) {
   await db.collection(COLLECTIONS.auth).doc("auth").set(auth);
 }
 
+async function ensureInitialAuth() {
+  const auth = await ensureInitialAuth();
+  if (auth) return auth;
+
+  const initialPassword = String(process.env.INITIAL_ADMIN_PASSWORD || "").trim();
+  if (!initialPassword) return null;
+  if (initialPassword.length < 6) {
+    throw new Error("INITIAL_ADMIN_PASSWORD precisa ter pelo menos 6 caracteres.");
+  }
+
+  const nextAuth = {
+    ...hashPassword(initialPassword),
+    createdAt: new Date().toISOString(),
+    createdBy: "vercel-env"
+  };
+  await writeAuth(nextAuth);
+  return nextAuth;
+}
+
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
   if (typeof req.body === "string" && req.body.trim()) return JSON.parse(req.body);
@@ -276,7 +295,7 @@ async function readState() {
 }
 
 async function handleAuth(req, res, url) {
-  const auth = await readAuth();
+  const auth = await ensureInitialAuth();
 
   if (req.method === "GET" && url.pathname === "/api/auth/status") {
     return sendJson(res, 200, { configured: Boolean(auth), authenticated: Boolean(auth && (await isAuthenticated(req))) });
