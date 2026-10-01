@@ -188,6 +188,10 @@ function sendJsonWithHeaders(res, status, payload, headers = {}) {
   res.end(JSON.stringify(payload));
 }
 
+function publicDebugError(error) {
+  return String(error?.message || error || "Erro desconhecido").slice(0, 500);
+}
+
 async function readBody(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -883,6 +887,15 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
 }
 
 async function handleApi(req, res, url) {
+  if (req.method === "GET" && url.pathname === "/api/health") {
+    sendJson(res, 200, {
+      ok: true,
+      runtime: "server-js",
+      message: "A Vercel esta usando server.js. Confira Root Directory, arquivos antigos e vercel.json."
+    });
+    return;
+  }
+
   if (url.pathname.startsWith("/api/auth/")) {
     await handleAuth(req, res, url);
     return;
@@ -1058,7 +1071,11 @@ const server = http.createServer(async (req, res) => {
     await serveStatic(req, res, url);
   } catch (error) {
     console.error(error);
-    sendJson(res, 500, { error: "Nao foi possivel concluir a operacao." });
+    sendJson(res, 500, {
+      error: "Nao foi possivel concluir a operacao.",
+      detail: publicDebugError(error),
+      runtime: "server-js"
+    });
   }
 });
 
