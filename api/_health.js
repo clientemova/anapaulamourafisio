@@ -42,6 +42,8 @@ async function buildHealthPayload() {
 
   return {
     ok,
+    vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
+    vercelUrl: process.env.VERCEL_URL || "nao informado",
     firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
     firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
     initialAdminPassword: initialPasswordConfigured ? "configurado" : "nao configurado",

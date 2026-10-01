@@ -319,7 +319,8 @@ async function handleAuth(req, res, url) {
     return sendJson(res, 200, {
       configured: Boolean(auth),
       authenticated: Boolean(auth && (await isAuthenticated(req))),
-      initialPasswordConfigured: Boolean(process.env.INITIAL_ADMIN_PASSWORD)
+      initialPasswordConfigured: Boolean(process.env.INITIAL_ADMIN_PASSWORD),
+      vercelEnvironment: process.env.VERCEL_ENV || "nao informado"
     });
   }
 
