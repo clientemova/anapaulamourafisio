@@ -316,7 +316,11 @@ async function handleAuth(req, res, url) {
   const auth = await ensureInitialAuth();
 
   if (req.method === "GET" && url.pathname === "/api/auth/status") {
-    return sendJson(res, 200, { configured: Boolean(auth), authenticated: Boolean(auth && (await isAuthenticated(req))) });
+    return sendJson(res, 200, {
+      configured: Boolean(auth),
+      authenticated: Boolean(auth && (await isAuthenticated(req))),
+      initialPasswordConfigured: Boolean(process.env.INITIAL_ADMIN_PASSWORD)
+    });
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/setup") {
@@ -324,7 +328,11 @@ async function handleAuth(req, res, url) {
     const body = await readBody(req);
     const password = String(body.password || "");
     if (password.length < 6) return sendJson(res, 400, { error: "Use uma senha com pelo menos 6 caracteres." });
-    await writeAuth(hashPassword(password));
+    await writeAuth({
+      ...hashPassword(password),
+      createdAt: new Date().toISOString(),
+      createdBy: "setup-screen"
+    });
     const token = await createSession();
     return sendJson(res, 201, { ok: true }, { "Set-Cookie": sessionCookie(token, req) });
   }
