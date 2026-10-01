@@ -131,12 +131,15 @@ async function readHealthMessage() {
     const response = await fetch("/api/health", { credentials: "same-origin" });
     const payload = await response.json().catch(() => ({}));
     if (payload.ok) {
-      return "O teste /api/health esta ok. Confira /api/auth/status e se este e o ultimo deploy da Vercel.";
+      return `O teste /api/health esta ok no ambiente ${payload.vercelEnvironment || "nao informado"}. Confira /api/auth/status e se este e o ultimo deploy da Vercel.`;
     }
     const details = [
+      payload.vercelEnvironment ? `Ambiente Vercel: ${payload.vercelEnvironment}` : "",
       payload.firebaseServiceAccountBase64 === "nao configurado" ? "FIREBASE_SERVICE_ACCOUNT_BASE64 nao configurado" : "",
       payload.initialAdminPassword === "nao configurado" ? "INITIAL_ADMIN_PASSWORD nao configurado" : "",
-      payload.firestore?.write === "falhou" ? payload.firestore?.error?.message : ""
+      payload.firestore?.write === "falhou" ? payload.firestore?.error?.message : "",
+      payload.error ? `Erro da API: ${payload.error}` : "",
+      !Object.keys(payload).length ? `A rota /api/health respondeu status ${response.status}, mas nao retornou diagnostico JSON.` : ""
     ].filter(Boolean);
     return details.length ? details.join(". ") : payload.message || "A API nao conseguiu confirmar a configuracao do Firebase.";
   } catch (error) {
