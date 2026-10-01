@@ -19,6 +19,18 @@ function sendJson(res, status, payload, headers = {}) {
   res.end(JSON.stringify(payload));
 }
 
+function hasBase64Credential() {
+  return Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64);
+}
+
+function hasSplitCredential() {
+  return Boolean(
+    process.env.FIREBASE_PROJECT_ID &&
+    process.env.FIREBASE_CLIENT_EMAIL &&
+    process.env.FIREBASE_PRIVATE_KEY
+  );
+}
+
 function safeApiError(error) {
   const message = String(error?.message || error || "");
   if (message.includes("Could not load the default credentials")) {
@@ -380,8 +392,37 @@ async function handleApi(req, res) {
   const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
 
   if (req.method === "GET" && url.pathname === "/api/health") {
-    const payload = await buildHealthPayload();
-    return sendJson(res, payload.ok ? 200 : 500, payload);
+    try {
+      const ref = db.collection("_diagnostics").doc("vercel-route-health");
+      await ref.set({
+        checkedAt: admin.firestore.FieldValue.serverTimestamp(),
+        source: "vercel-route-health"
+      });
+      await ref.delete();
+      return sendJson(res, 200, {
+        ok: true,
+        runtime: "vercel-route",
+        vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
+        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
+        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
+        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+        firestore: { ok: true, write: "ok" }
+      });
+    } catch (error) {
+      return sendJson(res, 500, {
+        ok: false,
+        runtime: "vercel-route",
+        vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
+        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
+        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
+        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+        firestore: {
+          ok: false,
+          write: "falhou",
+          error: publicDebugError(error)
+        }
+      });
+    }
   }
 
   if (url.pathname.startsWith("/api/auth/")) {
