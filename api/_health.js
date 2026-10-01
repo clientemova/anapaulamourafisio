@@ -37,20 +37,20 @@ async function buildHealthPayload() {
   const initialPasswordConfigured = Boolean(process.env.INITIAL_ADMIN_PASSWORD);
   const firestore = firebaseConfigured
     ? await testFirestore()
-    : { ok: false, write: "nao testado" };
+    : { ok: false, write: "não testado" };
   const ok = firebaseConfigured && firestore.ok;
 
   return {
     ok,
-    vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
-    vercelUrl: process.env.VERCEL_URL || "nao informado",
-    firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
-    firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
-    initialAdminPassword: initialPasswordConfigured ? "configurado" : "nao configurado",
+    vercelEnvironment: process.env.VERCEL_ENV || "não informado",
+    vercelUrl: process.env.VERCEL_URL || "não informado",
+    firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "não configurado",
+    firebaseSplitCredential: hasSplitCredential() ? "configurado" : "não configurado",
+    initialAdminPassword: initialPasswordConfigured ? "configurado" : "não configurado",
     firestore,
     message: ok
       ? "Firebase e Firestore funcionando na Vercel."
-      : "A Vercel ainda nao conseguiu gravar no Firestore. Confira credenciais, permissao da conta de servico e se o Firestore Database foi criado."
+      : "A Vercel ainda não conseguiu gravar no Firestore. Confira credenciais, permissão da conta de serviço e se o Firestore Database foi criado."
   };
 }
 

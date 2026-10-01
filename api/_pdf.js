@@ -88,7 +88,7 @@ function paethPredictor(a, b, c) {
 
 function parsePng(buffer) {
   if (!buffer || buffer.slice(0, 8).toString("hex") !== "89504e470d0a1a0a") {
-    throw new Error("Imagem PNG invalida.");
+    throw new Error("Imagem PNG inválida.");
   }
 
   let offset = 8;
@@ -117,7 +117,7 @@ function parsePng(buffer) {
   }
 
   if (bitDepth !== 8 || ![2, 6].includes(colorType)) {
-    throw new Error("Formato de logo PNG nao suportado.");
+    throw new Error("Formato de logo PNG não suportado.");
   }
 
   const bytesPerPixel = colorType === 6 ? 4 : 3;
@@ -142,7 +142,7 @@ function parsePng(buffer) {
       else if (filter === 2) row[index] = (row[index] + up) & 255;
       else if (filter === 3) row[index] = (row[index] + Math.floor((left + up) / 2)) & 255;
       else if (filter === 4) row[index] = (row[index] + paethPredictor(left, up, upLeft)) & 255;
-      else if (filter !== 0) throw new Error("Filtro PNG nao suportado.");
+      else if (filter !== 0) throw new Error("Filtro PNG não suportado.");
     }
 
     row.copy(raw, targetOffset);
@@ -371,14 +371,14 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     }
   };
 
-  text("Ficha de avaliacao - Limpeza de pele", margin, y, 14, true);
+  text("Ficha de avaliação - Limpeza de pele", margin, y, 14, true);
   y -= 14;
   text(`Gerada em ${formatDatePt(today)}`, margin, y, 8.5, false, "0.37 0.45 0.47");
 
   section("Identificacao pessoal");
   field("Nome", patient.name || "Sem paciente vinculado");
   fieldRow([
-    { label: "Data da avaliacao", value: formatDatePt(assessment.date) },
+    { label: "Data da avaliação", value: formatDatePt(assessment.date) },
     { label: "Nascimento", value: formatDatePt(patient.birthDate) },
     { label: "Idade", value: calculateAgePt(patient.birthDate) }
   ], 3);
@@ -397,31 +397,31 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     { label: "Alergias", value: yesNoTextPdf(assessment.health?.allergy) },
     { label: "Gestante", value: assessment.health?.pregnant || "-" }
   ], 2);
-  field("Procedimentos esteticos faciais", yesNoTextPdf(assessment.health?.previousFacialProcedure));
+  field("Procedimentos estéticos faciais", yesNoTextPdf(assessment.health?.previousFacialProcedure));
 
   section("Habitos e rotina de cuidados");
   fieldRow([
     { label: "Usa protetor solar diariamente?", value: assessment.habits?.sunscreen || "-" },
-    { label: "Frequencia de limpeza facial", value: assessment.habits?.cleaningFrequency || "-" }
+    { label: "Frequência de limpeza facial", value: assessment.habits?.cleaningFrequency || "-" }
   ], 2);
   field("Produtos que utiliza em casa", assessment.habits?.homeProducts || "-");
 
-  section("Avaliacao da pele");
+  section("Avaliação da pele");
   fieldRow([
     { label: "Tipo de pele", value: listTextPdf(assessment.skin?.skinTypes) },
     { label: "Fototipo", value: assessment.skin?.phototype || "-" }
   ], 2);
   fieldRow([
-    { label: "Condicoes observadas", value: listTextPdf(assessment.skin?.observedConditions) },
+    { label: "Condições observadas", value: listTextPdf(assessment.skin?.observedConditions) },
     { label: "Outros", value: assessment.skin?.otherConditions || "-" }
   ], 2);
 
   section("Plano do tratamento");
-  field("Diagnostico estetico", assessment.plan?.diagnosis || "-");
+  field("Diagnostico estético", assessment.plan?.diagnosis || "-");
   field("Objetivo do tratamento", assessment.plan?.objective || "-");
   fieldRow([
     { label: "Procedimento indicado", value: listTextPdf([...(assessment.plan?.indicatedProcedures || []), assessment.plan?.otherProcedure].filter(Boolean)) },
-    { label: "Frequencia recomendada", value: assessment.plan?.recommendedFrequency || "-" }
+    { label: "Frequência recomendada", value: assessment.plan?.recommendedFrequency || "-" }
   ], 2);
   field("Orientacoes ao cliente", assessment.plan?.clientGuidance || "-");
 
