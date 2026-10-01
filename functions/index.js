@@ -69,6 +69,53 @@ async function writeAuth(auth) {
   await db.collection(COLLECTIONS.auth).doc("auth").set(auth);
 }
 
+async function ensureInitialAuth() {
+  const auth = await readAuth();
+  if (auth) return auth;
+
+  const initialPassword = String(process.env.INITIAL_ADMIN_PASSWORD || "").trim();
+  if (!initialPassword) return null;
+  if (initialPassword.length < 6) {
+    throw new Error("INITIAL_ADMIN_PASSWORD precisa ter pelo menos 6 caracteres.");
+  }
+
+  const nextAuth = {
+    ...hashPassword(initialPassword),
+    createdAt: new Date().toISOString(),
+    createdBy: "env"
+  };
+  await writeAuth(nextAuth);
+  return nextAuth;
+}
+
+function publicDebugError(error) {
+  return String(error?.message || error || "Erro desconhecido").slice(0, 500);
+}
+
+async function healthPayload() {
+  const ref = db.collection("_diagnostics").doc("firebase-functions-health");
+  try {
+    await ref.set({
+      checkedAt: admin.firestore.FieldValue.serverTimestamp(),
+      source: "firebase-functions-health"
+    });
+    await ref.delete();
+    return {
+      ok: true,
+      runtime: "firebase-functions",
+      initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+      firestore: { ok: true, write: "ok" }
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      runtime: "firebase-functions",
+      initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+      firestore: { ok: false, write: "falhou", error: publicDebugError(error) }
+    };
+  }
+}
+
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
   if (typeof req.body === "string" && req.body.trim()) return JSON.parse(req.body);
@@ -269,10 +316,15 @@ async function readState() {
 }
 
 async function handleAuth(req, res, url) {
-  const auth = await readAuth();
+  const auth = await ensureInitialAuth();
 
   if (req.method === "GET" && url.pathname === "/api/auth/status") {
-    return sendJson(res, 200, { configured: Boolean(auth), authenticated: Boolean(auth && (await isAuthenticated(req))) });
+    return sendJson(res, 200, {
+      configured: Boolean(auth),
+      authenticated: Boolean(auth && (await isAuthenticated(req))),
+      initialPasswordConfigured: Boolean(process.env.INITIAL_ADMIN_PASSWORD),
+      runtime: "firebase-functions"
+    });
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/setup") {
@@ -320,6 +372,11 @@ async function deleteByPatientId(collectionName, patientId) {
 
 async function handleApi(req, res) {
   const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
+
+  if (req.method === "GET" && url.pathname === "/api/health") {
+    const payload = await healthPayload();
+    return sendJson(res, payload.ok ? 200 : 500, payload);
+  }
 
   if (url.pathname.startsWith("/api/auth/")) {
     await handleAuth(req, res, url);
@@ -428,6 +485,10 @@ exports.api = onRequest({ maxInstances: 10 }, async (req, res) => {
     await handleApi(req, res);
   } catch (error) {
     console.error(error);
-    sendJson(res, 500, { error: "Nao foi possivel concluir a operacao." });
+    sendJson(res, 500, {
+      error: "Nao foi possivel concluir a operacao.",
+      detail: publicDebugError(error),
+      runtime: "firebase-functions"
+    });
   }
 });
