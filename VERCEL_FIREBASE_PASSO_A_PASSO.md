@@ -175,13 +175,50 @@ O esperado e aparecer:
 {
   "ok": true,
   "firebaseServiceAccountBase64": "configurado",
-  "initialAdminPassword": "configurado"
+  "initialAdminPassword": "configurado",
+  "firestore": {
+    "ok": true,
+    "write": "ok"
+  }
 }
 ```
 
 Se aparecer `nao configurado`, a Vercel ainda nao recebeu a credencial ou a senha inicial.
 
-Se o `/api/health` estiver ok e mesmo assim nao salvar, confira no Firebase se o **Firestore Database** foi criado.
+Se `firestore.write` aparecer como `falhou`, olhe o campo `firestore.error.message`.
+
+Erros comuns:
+
+- `Firestore Database nao encontrado`: crie o banco em **Firebase > Firestore Database**.
+- `permission denied`: a conta de servico nao tem permissao para Firestore.
+- erro de chave privada: gere novamente o Base64 usando o JSON original baixado do Firebase.
+
+Depois que `/api/health` estiver com `"ok": true`, abra tambem:
+
+```text
+https://SEU-SITE-DA-VERCEL.vercel.app/api/auth/status
+```
+
+O esperado para a web publicada e aparecer:
+
+```json
+{
+  "configured": true,
+  "authenticated": false
+}
+```
+
+Se continuar aparecendo a tela de criar senha, confira se o ultimo deploy da Vercel recebeu estes arquivos atualizados:
+
+```text
+api/[...path].js
+api/_firebase.js
+api/_health.js
+api/health.js
+vercel.json
+```
+
+Se voce ja tentou criar outra senha antes, pode existir uma senha antiga gravada em `appConfig/auth` no Firestore. Para voltar a usar a senha de `INITIAL_ADMIN_PASSWORD`, apague o documento `auth` dentro da colecao `appConfig` e faça um novo redeploy.
 
 ## 10. Importar os dados locais para o Firestore
 
