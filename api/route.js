@@ -36,6 +36,11 @@ function safeApiError(error) {
   return "Nao foi possivel concluir a operacao. Verifique /api/health e os logs da Vercel.";
 }
 
+function publicDebugError(error) {
+  const message = String(error?.message || error || "Erro desconhecido");
+  return message.slice(0, 500);
+}
+
 function makeId(prefix) {
   return `${prefix}_${crypto.randomBytes(6).toString("hex")}`;
 }
@@ -510,7 +515,8 @@ module.exports = async function handler(req, res) {
     console.error(error);
     sendJson(res, 500, {
       error: safeApiError(error),
-      code: error?.code || "unknown"
+      code: error?.code || "unknown",
+      detail: publicDebugError(error)
     });
   }
 };
