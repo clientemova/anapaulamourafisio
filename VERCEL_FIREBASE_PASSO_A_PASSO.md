@@ -238,6 +238,7 @@ Esse comando importa:
 - evolucoes
 - agendamentos
 - avaliacoes e fichas
+- senha local de acesso, se existir `data/auth.json`
 
 ## 11. Onde os dados ficam no Firebase
 
