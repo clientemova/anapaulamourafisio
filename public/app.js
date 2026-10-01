@@ -111,17 +111,51 @@ async function api(path, options = {}) {
   return payload;
 }
 
+function isPublishedHost() {
+  return !["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
+function setAuthAlert(message) {
+  const alert = $("#authAlert");
+  if (!message) {
+    alert.hidden = true;
+    alert.textContent = "";
+    return;
+  }
+  alert.hidden = false;
+  alert.textContent = message;
+}
+
+async function readHealthMessage() {
+  try {
+    const response = await fetch("/api/health", { credentials: "same-origin" });
+    const payload = await response.json().catch(() => ({}));
+    if (payload.ok) {
+      return "O teste /api/health esta ok. Confira /api/auth/status e se este e o ultimo deploy da Vercel.";
+    }
+    const details = [
+      payload.firebaseServiceAccountBase64 === "nao configurado" ? "FIREBASE_SERVICE_ACCOUNT_BASE64 nao configurado" : "",
+      payload.initialAdminPassword === "nao configurado" ? "INITIAL_ADMIN_PASSWORD nao configurado" : "",
+      payload.firestore?.write === "falhou" ? payload.firestore?.error?.message : ""
+    ].filter(Boolean);
+    return details.length ? details.join(". ") : payload.message || "A API nao conseguiu confirmar a configuracao do Firebase.";
+  } catch (error) {
+    return "Nao foi possivel abrir /api/health. Confirme se o deploy novo da Vercel terminou.";
+  }
+}
+
 function showAuth(mode) {
   state.authMode = mode;
   document.body.classList.add("is-locked");
   $("#authScreen").hidden = false;
   $("#authPassword").value = "";
+  setAuthAlert("");
   $("#authPassword").autocomplete = mode === "setup" ? "new-password" : "current-password";
   $("#authEyebrow").textContent = mode === "setup" ? "Primeiro acesso" : "Seguranca";
   $("#authTitle").textContent = mode === "setup" ? "Crie a senha de acesso" : "Entrar na plataforma";
   $("#authText").textContent =
     mode === "setup"
-      ? "Esta senha vai proteger os dados dos pacientes neste computador."
+      ? "Esta senha vai proteger os dados dos pacientes."
       : "Digite a senha para acessar os dados da clinica.";
   $("#authSubmit").textContent = mode === "setup" ? "Criar senha e entrar" : "Entrar";
   window.setTimeout(() => $("#authPassword").focus(), 50);
@@ -136,6 +170,9 @@ async function checkAuth() {
   const status = await api("/api/auth/status");
   if (!status.configured) {
     showAuth("setup");
+    if (isPublishedHost() && !status.initialPasswordConfigured) {
+      setAuthAlert("A Vercel ainda nao recebeu INITIAL_ADMIN_PASSWORD ou este link esta em um deploy antigo. Configure a variavel em Production e faca Redeploy.");
+    }
     return;
   }
   if (!status.authenticated) {
@@ -888,6 +925,11 @@ authForm.addEventListener("submit", async (event) => {
     await loadState();
     showToast(state.authMode === "setup" ? "Senha criada." : "Acesso liberado.");
   } catch (error) {
+    let message = error.message;
+    if (state.authMode === "setup" && isPublishedHost()) {
+      message = `${message} Diagnostico: ${await readHealthMessage()}`;
+    }
+    setAuthAlert(message);
     showToast(error.message);
   }
 });
