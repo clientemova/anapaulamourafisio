@@ -60,6 +60,7 @@ if (serviceAccount) {
 const db = admin.firestore();
 const root = path.resolve(__dirname, "..");
 const dataPath = path.join(root, "data", "pacientes.json");
+const authPath = path.join(root, "data", "auth.json");
 
 if (!fs.existsSync(dataPath)) {
   console.error("Arquivo local data/pacientes.json nao encontrado.");
@@ -97,6 +98,18 @@ async function importCollection(name, records) {
 async function main() {
   for (const [name, records] of Object.entries(collections)) {
     await importCollection(name, records);
+  }
+
+  if (fs.existsSync(authPath)) {
+    const auth = JSON.parse(fs.readFileSync(authPath, "utf8"));
+    await db.collection("appConfig").doc("auth").set({
+      ...auth,
+      importedAt: new Date().toISOString(),
+      importedFrom: "data/auth.json"
+    });
+    console.log("appConfig/auth: senha local importada.");
+  } else {
+    console.log("appConfig/auth: data/auth.json nao encontrado, senha local nao importada.");
   }
 }
 
