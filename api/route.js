@@ -512,13 +512,15 @@ async function handleApi(req, res) {
   }
 
   if (resource === "treatment-assessments") {
-    const ref = db.collection(COLLECTIONS.treatmentAssessments).doc(id || "");
-
     if (req.method === "POST") {
       const assessment = normalizeTreatmentAssessment(await readBody(req));
       await db.collection(COLLECTIONS.treatmentAssessments).doc(assessment.id).set(assessment);
       return sendJson(res, 201, assessment);
     }
+
+    if (!id) return sendJson(res, 400, { error: "Informe a avaliação." });
+
+    const ref = db.collection(COLLECTIONS.treatmentAssessments).doc(id);
 
     if (req.method === "GET" && parts[3] === "pdf") {
       const doc = await ref.get();
