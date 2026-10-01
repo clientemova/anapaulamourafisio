@@ -111,7 +111,11 @@ async function api(path, options = {}) {
   if (response.status === 401 && !path.startsWith("/api/auth/")) {
     showAuth("login");
   }
-  if (!response.ok) throw new Error(payload.error || "Não foi possível salvar.");
+  if (!response.ok) {
+    const detail = payload.detail ? ` Detalhe: ${payload.detail}` : "";
+    const code = payload.code && payload.code !== "unknown" ? ` Código: ${payload.code}.` : "";
+    throw new Error(`${payload.error || "Não foi possível salvar."}${code}${detail}`);
+  }
   return payload;
 }
 
@@ -178,7 +182,7 @@ async function checkAuth() {
   if (!status.configured) {
     showAuth("setup");
     if (isPublishedHost() && !status.initialPasswordConfigured) {
-      setAuthAlert("A Vercel ainda não recebeu INITIAL_ADMIN_PASSWORD ou este link esta em um deploy antigo. Configure a variavel em Production e faca Redeploy.");
+      setAuthAlert("A Vercel ainda não recebeu INITIAL_ADMIN_PASSWORD ou este link está em um deploy antigo. Configure a variável em Production e faça Redeploy.");
     }
     return;
   }
@@ -934,7 +938,7 @@ authForm.addEventListener("submit", async (event) => {
   } catch (error) {
     let message = error.message;
     if (state.authMode === "setup" && isPublishedHost()) {
-      message = `${message} Diagnostico: ${await readHealthMessage()}`;
+      message = `${message} Diagnóstico: ${await readHealthMessage()}`;
     }
     setAuthAlert(message);
     showToast(error.message);
