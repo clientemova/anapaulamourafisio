@@ -211,7 +211,8 @@ O esperado para a web publicada e aparecer:
 Se continuar aparecendo a tela de criar senha, confira se o ultimo deploy da Vercel recebeu estes arquivos atualizados:
 
 ```text
-api/[...path].js
+api/route.js
+api/index.js
 api/_firebase.js
 api/_health.js
 api/health.js
