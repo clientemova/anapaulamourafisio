@@ -73,18 +73,22 @@ function assessmentById(id) {
   return state.treatmentAssessments.find((assessment) => assessment.id === id);
 }
 
+function formatTreatmentName(value) {
+  return value === "Fisioterapia geriatrica" ? "Fisioterapia geriátrica" : value;
+}
+
 function treatmentSummary(assessment) {
   if (assessment.treatment === "Fisioterapia geriatrica") {
     return {
-      frequency: assessment.plan?.recommendedFrequency || "Sem frequencia",
-      primary: assessment.plan?.diagnosis || assessment.complaint || "Sem diagnostico registrado.",
+      frequency: assessment.plan?.recommendedFrequency || "Sem frequência",
+      primary: assessment.plan?.diagnosis || assessment.complaint || "Sem diagnóstico registrado.",
       secondary: assessment.plan?.objective || assessment.plan?.treatmentPlan || "Sem objetivo registrado."
     };
   }
 
   return {
-    frequency: assessment.plan?.recommendedFrequency || "Sem frequencia",
-    primary: assessment.plan?.diagnosis || "Sem diagnostico estetico registrado.",
+    frequency: assessment.plan?.recommendedFrequency || "Sem frequência",
+    primary: assessment.plan?.diagnosis || "Sem diagnóstico estético registrado.",
     secondary: assessment.plan?.objective || "Sem objetivo registrado."
   };
 }
@@ -107,7 +111,7 @@ async function api(path, options = {}) {
   if (response.status === 401 && !path.startsWith("/api/auth/")) {
     showAuth("login");
   }
-  if (!response.ok) throw new Error(payload.error || "Nao foi possivel salvar.");
+  if (!response.ok) throw new Error(payload.error || "Não foi possível salvar.");
   return payload;
 }
 
@@ -131,19 +135,19 @@ async function readHealthMessage() {
     const response = await fetch("/api/health", { credentials: "same-origin" });
     const payload = await response.json().catch(() => ({}));
     if (payload.ok) {
-      return `O teste /api/health esta ok no ambiente ${payload.vercelEnvironment || "nao informado"}. Confira /api/auth/status e se este e o ultimo deploy da Vercel.`;
+      return `O teste /api/health está ok no ambiente ${payload.vercelEnvironment || "não informado"}. Confira /api/auth/status e se este é o último deploy da Vercel.`;
     }
     const details = [
       payload.vercelEnvironment ? `Ambiente Vercel: ${payload.vercelEnvironment}` : "",
-      payload.firebaseServiceAccountBase64 === "nao configurado" ? "FIREBASE_SERVICE_ACCOUNT_BASE64 nao configurado" : "",
-      payload.initialAdminPassword === "nao configurado" ? "INITIAL_ADMIN_PASSWORD nao configurado" : "",
+      payload.firebaseServiceAccountBase64 === "não configurado" ? "FIREBASE_SERVICE_ACCOUNT_BASE64 não configurado" : "",
+      payload.initialAdminPassword === "não configurado" ? "INITIAL_ADMIN_PASSWORD não configurado" : "",
       payload.firestore?.write === "falhou" ? payload.firestore?.error?.message : "",
       payload.error ? `Erro da API: ${payload.error}` : "",
-      !Object.keys(payload).length ? `A rota /api/health respondeu status ${response.status}, mas nao retornou diagnostico JSON.` : ""
+      !Object.keys(payload).length ? `A rota /api/health respondeu status ${response.status}, mas não retornou diagnóstico JSON.` : ""
     ].filter(Boolean);
-    return details.length ? details.join(". ") : payload.message || "A API nao conseguiu confirmar a configuracao do Firebase.";
+    return details.length ? details.join(". ") : payload.message || "A API não conseguiu confirmar a configuração do Firebase.";
   } catch (error) {
-    return "Nao foi possivel abrir /api/health. Confirme se o deploy novo da Vercel terminou.";
+    return "Não foi possível abrir /api/health. Confirme se o deploy novo da Vercel terminou.";
   }
 }
 
@@ -154,12 +158,12 @@ function showAuth(mode) {
   $("#authPassword").value = "";
   setAuthAlert("");
   $("#authPassword").autocomplete = mode === "setup" ? "new-password" : "current-password";
-  $("#authEyebrow").textContent = mode === "setup" ? "Primeiro acesso" : "Seguranca";
+  $("#authEyebrow").textContent = mode === "setup" ? "Primeiro acesso" : "Segurança";
   $("#authTitle").textContent = mode === "setup" ? "Crie a senha de acesso" : "Entrar na plataforma";
   $("#authText").textContent =
     mode === "setup"
       ? "Esta senha vai proteger os dados dos pacientes."
-      : "Digite a senha para acessar os dados da clinica.";
+      : "Digite a senha para acessar os dados da clínica.";
   $("#authSubmit").textContent = mode === "setup" ? "Criar senha e entrar" : "Entrar";
   window.setTimeout(() => $("#authPassword").focus(), 50);
 }
@@ -174,7 +178,7 @@ async function checkAuth() {
   if (!status.configured) {
     showAuth("setup");
     if (isPublishedHost() && !status.initialPasswordConfigured) {
-      setAuthAlert("A Vercel ainda nao recebeu INITIAL_ADMIN_PASSWORD ou este link esta em um deploy antigo. Configure a variavel em Production e faca Redeploy.");
+      setAuthAlert("A Vercel ainda não recebeu INITIAL_ADMIN_PASSWORD ou este link esta em um deploy antigo. Configure a variavel em Production e faca Redeploy.");
     }
     return;
   }
@@ -290,7 +294,7 @@ function renderUpcomingAppointments() {
 
   root.innerHTML = Object.entries(grouped)
     .map(([date, appointments]) => {
-      const countLabel = appointments.length === 1 ? "1 horario" : `${appointments.length} horarios`;
+      const countLabel = appointments.length === 1 ? "1 horário" : `${appointments.length} horários`;
       return `
         <section class="upcoming-day">
           <div class="upcoming-date">
@@ -333,7 +337,7 @@ function renderPriorityPatients() {
                 <strong>${escapeHtml(patient.name)}</strong>
                 <span>Dor ${Number(patient.pain || 0)}/10</span>
               </div>
-              <p class="meta">${escapeHtml(patient.condition || "Sem diagnostico informado")}</p>
+              <p class="meta">${escapeHtml(patient.condition || "Sem diagnóstico informado")}</p>
               <div class="progress-shell" aria-label="Dor atual">
                 <div class="progress-bar" style="width:${Math.min(100, Number(patient.pain || 0) * 10)}%"></div>
               </div>
@@ -366,7 +370,7 @@ function renderPatientCard(patient) {
       <div class="status-row">
         <div>
           <strong>${escapeHtml(patient.name)}</strong>
-          <span class="meta">${escapeHtml(patient.condition || "Sem diagnostico")}</span>
+          <span class="meta">${escapeHtml(patient.condition || "Sem diagnóstico")}</span>
         </div>
         ${statusPill(patient.status)}
       </div>
@@ -400,26 +404,26 @@ function renderPatientDetail() {
     <div class="panel-head">
       <div>
         <h2>${escapeHtml(patient.name)}</h2>
-        <p class="muted">${escapeHtml(patient.condition || "Sem diagnostico informado")}</p>
+        <p class="muted">${escapeHtml(patient.condition || "Sem diagnóstico informado")}</p>
       </div>
       <div class="item-actions">
         <button class="button ghost" type="button" data-edit-patient="${patient.id}">Editar</button>
-        <button class="button ghost" type="button" data-new-assessment="${patient.id}">Nova avaliacao</button>
-        <button class="button primary" type="button" data-new-session="${patient.id}">Nova evolucao</button>
+        <button class="button ghost" type="button" data-new-assessment="${patient.id}">Nova avaliação</button>
+        <button class="button primary" type="button" data-new-session="${patient.id}">Nova evolução</button>
       </div>
     </div>
 
     <div class="detail-grid">
       ${detailField("Status", statusPill(patient.status), true)}
-      ${detailField("Idade", escapeHtml(calculateAge(patient.birthDate) || "Nao informada"))}
-      ${detailField("Telefone", escapeHtml(patient.phone || "Nao informado"))}
-      ${detailField("Terapeuta", escapeHtml(patient.therapist || "Nao informado"))}
-      ${detailField("Frequencia", escapeHtml(patient.frequency || "Nao informada"))}
+      ${detailField("Idade", escapeHtml(calculateAge(patient.birthDate) || "Não informada"))}
+      ${detailField("Telefone", escapeHtml(patient.phone || "Não informado"))}
+      ${detailField("Terapeuta", escapeHtml(patient.therapist || "Não informado"))}
+      ${detailField("Frequência", escapeHtml(patient.frequency || "Não informada"))}
       ${detailField("Inicio", escapeHtml(formatDate(patient.startedAt)))}
     </div>
 
     <section>
-      <h3>Plano terapeutico</h3>
+      <h3>Plano terapêutico</h3>
       <p class="muted">${escapeHtml(patient.goals || "Nenhum objetivo registrado.")}</p>
       <div class="progress-shell" aria-label="Dor atual">
         <div class="progress-bar" style="width:${Math.min(100, Number(patient.pain || 0) * 10)}%"></div>
@@ -429,14 +433,14 @@ function renderPatientDetail() {
 
     <section>
       <div class="panel-head">
-        <h3>Tratamentos esteticos</h3>
-        <button class="button ghost" type="button" data-new-assessment="${patient.id}">Nova avaliacao</button>
+        <h3>Tratamentos estéticos</h3>
+        <button class="button ghost" type="button" data-new-assessment="${patient.id}">Nova avaliação</button>
       </div>
       <div class="timeline">
         ${
           treatmentAssessments.length
             ? treatmentAssessments.map(renderTreatmentAssessment).join("")
-            : `<div class="empty-state">Nenhuma avaliacao registrada.</div>`
+            : `<div class="empty-state">Nenhuma avaliação registrada.</div>`
         }
       </div>
     </section>
@@ -449,21 +453,21 @@ function renderPatientDetail() {
         ${
           sessions.length
             ? sessions.map(renderSession).join("")
-            : `<div class="empty-state">Ainda nao ha evolucoes registradas.</div>`
+            : `<div class="empty-state">Ainda não há evoluções registradas.</div>`
         }
       </div>
     </section>
 
     <section>
       <div class="panel-head">
-        <h3>Proximos horarios</h3>
+        <h3>Próximos horários</h3>
         <button class="button ghost" type="button" data-new-appointment="${patient.id}">Agendar</button>
       </div>
       <div class="stack">
         ${
           appointments.length
             ? appointments.map(renderMiniAppointment).join("")
-            : `<div class="empty-state">Nenhum horario registrado para este paciente.</div>`
+            : `<div class="empty-state">Nenhum horário registrado para este paciente.</div>`
         }
       </div>
     </section>
@@ -516,12 +520,12 @@ function renderSkinAssessment(assessment) {
   return `
     <article class="timeline-item">
       <div class="status-row">
-        <strong>${escapeHtml(formatDate(assessment.date))} · ${escapeHtml(assessment.treatment)}</strong>
-        <span class="meta">${escapeHtml(assessment.plan?.recommendedFrequency || "Sem frequencia")}</span>
+        <strong>${escapeHtml(formatDate(assessment.date))} · ${escapeHtml(formatTreatmentName(assessment.treatment))}</strong>
+        <span class="meta">${escapeHtml(assessment.plan?.recommendedFrequency || "Sem frequência")}</span>
       </div>
-      <p>${escapeHtml(assessment.plan?.diagnosis || "Sem diagnostico estetico registrado.")}</p>
-      <p class="meta">Procedimento: ${escapeHtml(procedures.join(", ") || "Nao informado")}</p>
-      <p class="meta">Condicoes: ${escapeHtml(conditions.join(", ") || "Nao informadas")}</p>
+      <p>${escapeHtml(assessment.plan?.diagnosis || "Sem diagnóstico estético registrado.")}</p>
+      <p class="meta">Procedimento: ${escapeHtml(procedures.join(", ") || "Não informado")}</p>
+      <p class="meta">Condições: ${escapeHtml(conditions.join(", ") || "Não informadas")}</p>
       <div class="item-actions">
         <button class="button ghost" type="button" data-pdf-skin-assessment="${assessment.id}">Gerar PDF</button>
         <button class="button ghost" type="button" data-delete-skin-assessment="${assessment.id}">Remover</button>
@@ -539,12 +543,12 @@ function renderGeriatricAssessment(assessment) {
   return `
     <article class="timeline-item">
       <div class="status-row">
-        <strong>${escapeHtml(formatDate(assessment.date))} · ${escapeHtml(assessment.treatment)}</strong>
-        <span class="meta">${escapeHtml(assessment.plan?.recommendedFrequency || "Sem frequencia")}</span>
+        <strong>${escapeHtml(formatDate(assessment.date))} · ${escapeHtml(formatTreatmentName(assessment.treatment))}</strong>
+        <span class="meta">${escapeHtml(assessment.plan?.recommendedFrequency || "Sem frequência")}</span>
       </div>
-      <p>${escapeHtml(assessment.plan?.diagnosis || assessment.complaint || "Sem diagnostico registrado.")}</p>
-      <p class="meta">Deambulacao: ${escapeHtml(assessment.functional?.ambulation || "Nao informada")}</p>
-      <p class="meta">Antecedentes: ${escapeHtml(antecedents.join(", ") || "Nao informados")}</p>
+      <p>${escapeHtml(assessment.plan?.diagnosis || assessment.complaint || "Sem diagnóstico registrado.")}</p>
+      <p class="meta">Deambulação: ${escapeHtml(assessment.functional?.ambulation || "Não informada")}</p>
+      <p class="meta">Antecedentes: ${escapeHtml(antecedents.join(", ") || "Não informados")}</p>
       <div class="item-actions">
         <button class="button ghost" type="button" data-delete-skin-assessment="${assessment.id}">Remover</button>
       </div>
@@ -566,7 +570,7 @@ function renderTreatments() {
           renderTreatmentCard
         )
         .join("")
-    : `<div class="empty-state">Nenhuma avaliacao encontrada.</div>`;
+    : `<div class="empty-state">Nenhuma avaliação encontrada.</div>`;
 }
 
 function renderTreatmentCard(assessment) {
@@ -602,7 +606,7 @@ function renderSchedule() {
 
   $("#scheduleList").innerHTML = appointments.length
     ? appointments.map(renderScheduleCard).join("")
-    : `<div class="empty-state">Nenhum horario encontrado para esta data.</div>`;
+    : `<div class="empty-state">Nenhum horário encontrado para esta data.</div>`;
 }
 
 function renderScheduleCard(appointment) {
@@ -612,7 +616,7 @@ function renderScheduleCard(appointment) {
       <div>
         <strong>${escapeHtml(patientName(appointment.patientId))}</strong>
         <p class="meta">${escapeHtml(appointment.treatment || "Fisioterapia")} · ${escapeHtml(appointment.therapist || "Sem terapeuta")} · ${escapeHtml(appointment.duration)} min · ${escapeHtml(appointment.room || "Sem sala")}</p>
-        <p class="muted">${escapeHtml(appointment.notes || "Sem observacoes.")}</p>
+        <p class="muted">${escapeHtml(appointment.notes || "Sem observações.")}</p>
       </div>
       <div class="stack">
         ${statusPill(appointment.status)}
@@ -796,7 +800,7 @@ async function downloadSkinAssessmentPdf(id) {
   if (response.status === 401) showAuth("login");
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.error || "Nao foi possivel gerar o PDF.");
+    throw new Error(payload.error || "Não foi possível gerar o PDF.");
   }
 
   const blob = await response.blob();
@@ -894,7 +898,7 @@ skinAssessmentForm.addEventListener("submit", async (event) => {
     skinAssessmentDialog.close();
     await loadState();
     switchView("tratamentos");
-    showToast("Avaliacao de limpeza de pele salva.");
+    showToast("Avaliação de limpeza de pele salva.");
   } catch (error) {
     showToast(error.message);
   }
@@ -912,7 +916,7 @@ geriatricAssessmentForm.addEventListener("submit", async (event) => {
     geriatricAssessmentDialog.close();
     await loadState();
     switchView("tratamentos");
-    showToast("Avaliacao geriatrica salva.");
+    showToast("Avaliação geriátrica salva.");
   } catch (error) {
     showToast(error.message);
   }
@@ -1031,7 +1035,7 @@ document.addEventListener("click", async (event) => {
   }
 
   const deleteSession = event.target.closest("[data-delete-session]");
-  if (deleteSession && confirm("Remover esta evolucao?")) {
+  if (deleteSession && confirm("Remover esta evolução?")) {
     await api(`/api/sessions/${deleteSession.dataset.deleteSession}`, { method: "DELETE" });
     await loadState();
     showToast("Evolucao removida.");
@@ -1047,10 +1051,10 @@ document.addEventListener("click", async (event) => {
   }
 
   const deleteSkinAssessment = event.target.closest("[data-delete-skin-assessment]");
-  if (deleteSkinAssessment && confirm("Remover esta avaliacao?")) {
+  if (deleteSkinAssessment && confirm("Remover esta avaliação?")) {
     await api(`/api/treatment-assessments/${deleteSkinAssessment.dataset.deleteSkinAssessment}`, { method: "DELETE" });
     await loadState();
-    showToast("Avaliacao removida.");
+    showToast("Avaliação removida.");
   }
 });
 
@@ -1083,7 +1087,7 @@ $("#refreshButton").addEventListener("click", () => loadState().then(() => showT
 $("#logoutButton").addEventListener("click", async () => {
   await api("/api/auth/logout", { method: "POST" });
   showAuth("login");
-  showToast("Voce saiu da plataforma.");
+  showToast("Você saiu da plataforma.");
 });
 $("#changePasswordButton").addEventListener("click", () => {
   passwordForm.reset();

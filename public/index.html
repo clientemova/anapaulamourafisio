@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ana Paula Fisioterapeuta</title>
-    <meta name="description" content="Gestão de Pacientes">
+    <meta name="description" content="Sistema local de gestão de pacientes de fisioterapia.">
     <link rel="icon" href="/logo-sistema-v2.png" type="image/png">
     <link rel="stylesheet" href="/styles.css">
   </head>
@@ -20,9 +20,9 @@
         </div>
 
         <div>
-          <p class="eyebrow" id="authEyebrow">Seguranca</p>
+          <p class="eyebrow" id="authEyebrow">Segurança</p>
           <h1 id="authTitle">Entrar na plataforma</h1>
-          <p class="muted" id="authText">Digite a senha para acessar os dados da clinica.</p>
+          <p class="muted" id="authText">Digite a senha para acessar os dados da clínica.</p>
           <p class="auth-alert" id="authAlert" hidden></p>
         </div>
 
@@ -73,8 +73,8 @@
       <main class="workspace">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Bem-vinda Ana Paula</p>
-            <h1> </h1>
+            <p class="eyebrow">Fisioterapia</p>
+            <h1>Gestão de pacientes</h1>
           </div>
           <div class="topbar-actions">
             <button class="button ghost" id="changePasswordButton" type="button">Trocar senha</button>
@@ -88,7 +88,7 @@
           <div class="section-head">
             <div>
               <h2 id="painel-title">Painel de hoje</h2>
-              <p>Acompanhe atendimentos, pacientes ativos e evolucao clinica.</p>
+              <p>Acompanhe atendimentos, pacientes ativos e evolução clínica.</p>
             </div>
           </div>
 
@@ -105,7 +105,7 @@
 
             <section class="panel" aria-labelledby="prioridades-title">
               <div class="panel-head">
-                <h3 id="prioridades-title">Prioridades clinicas</h3>
+                <h3 id="prioridades-title">Prioridades clínicas</h3>
               </div>
               <div id="priorityPatients" class="stack"></div>
             </section>
@@ -114,8 +114,8 @@
           <section class="panel upcoming-panel" aria-labelledby="proximos-agendamentos-title">
             <div class="panel-head">
               <div>
-                <h3 id="proximos-agendamentos-title">Proximos agendamentos</h3>
-                <p class="meta">Horarios futuros organizados por dia.</p>
+                <h3 id="proximos-agendamentos-title">Próximos agendamentos</h3>
+                <p class="meta">Horários futuros organizados por dia.</p>
               </div>
               <button class="button ghost" type="button" data-view-link-button="agenda">Ver agenda</button>
             </div>
@@ -129,14 +129,14 @@
               <div class="section-head compact">
                 <div>
                   <h2 id="pacientes-title">Pacientes</h2>
-                  <p>Busque, filtre e acompanhe cada plano terapeutico.</p>
+                  <p>Busque, filtre e acompanhe cada plano terapêutico.</p>
                 </div>
               </div>
 
               <div class="toolbar">
                 <label class="search-field">
                   <span class="sr-only">Buscar paciente</span>
-                  <input id="searchInput" type="search" placeholder="Buscar por nome, diagnostico ou terapeuta">
+                  <input id="searchInput" type="search" placeholder="Buscar por nome, diagnóstico ou terapeuta">
                 </label>
                 <select id="statusFilter" aria-label="Filtrar por status">
                   <option value="todos">Todos</option>
@@ -157,7 +157,7 @@
           <div class="section-head">
             <div>
               <h2 id="agenda-title">Agenda</h2>
-              <p>Controle os atendimentos marcados e o status de cada horario.</p>
+              <p>Controle os atendimentos marcados e o status de cada horário.</p>
             </div>
             <button class="button primary" id="newAppointmentButton" type="button">Novo agendamento</button>
           </div>
@@ -181,9 +181,9 @@
           <div class="section-head">
             <div>
               <h2 id="tratamentos-title">Tratamentos</h2>
-              <p>Registre avaliacoes especificas, vinculadas ao paciente.</p>
+              <p>Registre avaliações específicas, vinculadas ao paciente.</p>
             </div>
-            <button class="button primary" id="newAssessmentButton" type="button">Nova avaliacao</button>
+            <button class="button primary" id="newAssessmentButton" type="button">Nova avaliação</button>
           </div>
 
           <section class="panel">
@@ -191,7 +191,7 @@
               <select id="treatmentFilter" aria-label="Filtrar tratamento">
                 <option value="todos">Todos os tratamentos</option>
                 <option value="Limpeza de pele">Limpeza de pele</option>
-                <option value="Fisioterapia geriatrica">Fisioterapia geriatrica</option>
+                <option value="Fisioterapia geriatrica">Fisioterapia geriátrica</option>
               </select>
               <select id="treatmentPatientFilter" aria-label="Filtrar paciente"></select>
             </div>
@@ -239,11 +239,11 @@
             <input name="therapist">
           </label>
           <label class="wide">
-            Queixa ou diagnostico
+            Queixa ou diagnóstico
             <input name="condition">
           </label>
           <label class="wide">
-            Objetivos terapeuticos
+            Objetivos terapêuticos
             <textarea name="goals" rows="3"></textarea>
           </label>
           <label>
@@ -259,7 +259,7 @@
             <input name="pain" type="number" min="0" max="10" value="0">
           </label>
           <label>
-            Frequencia
+            Frequência
             <input name="frequency" placeholder="Ex.: 2x por semana">
           </label>
           <label>
@@ -306,13 +306,13 @@
             Tipo
             <select name="type">
               <option>Evolucao</option>
-              <option>Avaliacao inicial</option>
-              <option>Reavaliacao</option>
+              <option>Avaliação inicial</option>
+              <option>Reavaliação</option>
               <option>Alta</option>
             </select>
           </label>
           <label class="wide">
-            Resumo clinico
+            Resumo clínico
             <textarea name="summary" rows="4" required></textarea>
           </label>
           <label class="wide">
@@ -323,7 +323,7 @@
 
         <div class="dialog-actions">
           <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
-          <button class="button primary" value="default" type="submit">Salvar evolucao</button>
+          <button class="button primary" value="default" type="submit">Salvar evolução</button>
         </div>
       </form>
     </dialog>
@@ -360,7 +360,7 @@
             <select name="treatment">
               <option value="Fisioterapia">Fisioterapia</option>
               <option value="Limpeza de pele">Limpeza de pele</option>
-              <option value="Fisioterapia geriatrica">Fisioterapia geriatrica</option>
+              <option value="Fisioterapia geriatrica">Fisioterapia geriátrica</option>
             </select>
           </label>
           <label>
@@ -398,7 +398,7 @@
         <div class="dialog-head">
           <div>
             <p class="eyebrow">Tratamentos</p>
-            <h2>Escolha a avaliacao</h2>
+            <h2>Escolha a avaliação</h2>
           </div>
           <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
         </div>
@@ -406,11 +406,11 @@
         <div class="assessment-options">
           <button class="assessment-option" type="button" data-start-assessment="skin">
             <strong>Limpeza de pele</strong>
-            <span>Ficha estetica ja cadastrada no sistema.</span>
+            <span>Ficha estética já cadastrada no sistema.</span>
           </button>
           <button class="assessment-option" type="button" data-start-assessment="geriatric">
-            <strong>Fisioterapia geriatrica</strong>
-            <span>Avaliacao funcional, quedas, forca, cognicao e plano.</span>
+            <strong>Fisioterapia geriátrica</strong>
+            <span>Avaliação funcional, quedas, força, cognição e plano.</span>
           </button>
         </div>
       </form>
@@ -421,7 +421,7 @@
         <div class="dialog-head">
           <div>
             <p class="eyebrow">Limpeza de pele</p>
-            <h2>Ficha de avaliacao</h2>
+            <h2>Ficha de avaliação</h2>
           </div>
           <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
         </div>
@@ -439,13 +439,13 @@
               <select id="skinAssessmentPatient"></select>
             </label>
             <label>
-              Data da avaliacao
+              Data da avaliação
               <input name="date" type="date">
             </label>
             <label>
               Sexo
               <select name="sex">
-                <option value="">Nao informado</option>
+                <option value="">Não informado</option>
                 <option value="M">Masculino</option>
                 <option value="F">Feminino</option>
               </select>
@@ -460,7 +460,7 @@
               <legend>Possui alguma doenca?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="diseaseAnswer" value="Sim"> Sim</label>
-                <label><input type="radio" name="diseaseAnswer" value="Nao"> Nao</label>
+                <label><input type="radio" name="diseaseAnswer" value="Não"> Não</label>
               </div>
               <input name="diseaseDetails" placeholder="Qual?">
             </fieldset>
@@ -468,7 +468,7 @@
               <legend>Uso de medicamentos continuos?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="medicationAnswer" value="Sim"> Sim</label>
-                <label><input type="radio" name="medicationAnswer" value="Nao"> Nao</label>
+                <label><input type="radio" name="medicationAnswer" value="Não"> Não</label>
               </div>
               <input name="medicationDetails" placeholder="Quais?">
             </fieldset>
@@ -476,7 +476,7 @@
               <legend>Alergias?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="allergyAnswer" value="Sim"> Sim</label>
-                <label><input type="radio" name="allergyAnswer" value="Nao"> Nao</label>
+                <label><input type="radio" name="allergyAnswer" value="Não"> Não</label>
               </div>
               <input name="allergyDetails" placeholder="Quais?">
             </fieldset>
@@ -484,14 +484,14 @@
               <legend>Gestante?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="pregnant" value="Sim"> Sim</label>
-                <label><input type="radio" name="pregnant" value="Nao"> Nao</label>
+                <label><input type="radio" name="pregnant" value="Não"> Não</label>
               </div>
             </fieldset>
             <fieldset class="wide-field">
-              <legend>Ja realizou procedimentos esteticos faciais?</legend>
+              <legend>Já realizou procedimentos estéticos faciais?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="previousFacialProcedureAnswer" value="Sim"> Sim</label>
-                <label><input type="radio" name="previousFacialProcedureAnswer" value="Nao"> Nao</label>
+                <label><input type="radio" name="previousFacialProcedureAnswer" value="Não"> Não</label>
               </div>
               <input name="previousFacialProcedureDetails" placeholder="Quais?">
             </fieldset>
@@ -505,11 +505,11 @@
               <legend>Usa protetor solar diariamente?</legend>
               <div class="choice-row">
                 <label><input type="radio" name="sunscreen" value="Sim"> Sim</label>
-                <label><input type="radio" name="sunscreen" value="Nao"> Nao</label>
+                <label><input type="radio" name="sunscreen" value="Não"> Não</label>
               </div>
             </fieldset>
             <label>
-              Frequencia de limpeza facial
+              Frequência de limpeza facial
               <select name="cleaningFrequency">
                 <option value="">Selecione</option>
                 <option>1x ao dia</option>
@@ -525,7 +525,7 @@
         </div>
 
         <div class="form-section">
-          <h3>Avaliacao da pele</h3>
+          <h3>Avaliação da pele</h3>
           <fieldset class="checkbox-group">
             <legend>Tipo de pele</legend>
             <label><input type="checkbox" name="skinTypes" value="Normal"> Normal</label>
@@ -545,7 +545,7 @@
             <label><input type="radio" name="phototype" value="VI"> VI</label>
           </fieldset>
           <fieldset class="checkbox-group">
-            <legend>Condicoes observadas</legend>
+            <legend>Condições observadas</legend>
             <label><input type="checkbox" name="observedConditions" value="Acne"> Acne</label>
             <label><input type="checkbox" name="observedConditions" value="Comedoes"> Comedoes</label>
             <label><input type="checkbox" name="observedConditions" value="Milias"> Milias</label>
@@ -568,7 +568,7 @@
           <h3>Plano do tratamento</h3>
           <div class="form-grid">
             <label class="wide">
-              Diagnostico estetico
+              Diagnostico estético
               <textarea name="diagnosis" rows="2"></textarea>
             </label>
             <label class="wide">
@@ -590,13 +590,13 @@
               <input name="otherProcedure">
             </label>
             <label>
-              Frequencia recomendada
+              Frequência recomendada
               <select name="recommendedFrequency">
                 <option value="">Selecione</option>
                 <option>Mensal</option>
                 <option>Bimestral</option>
                 <option>Trimestral</option>
-                <option>Conforme avaliacao profissional</option>
+                <option>Conforme avaliação profissional</option>
               </select>
             </label>
             <label class="wide">
@@ -628,7 +628,7 @@
 
         <div class="dialog-actions">
           <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
-          <button class="button primary" value="default" type="submit">Salvar avaliacao</button>
+          <button class="button primary" value="default" type="submit">Salvar avaliação</button>
         </div>
       </form>
     </dialog>
@@ -637,8 +637,8 @@
       <form method="dialog" class="dialog-box" id="geriatricAssessmentForm" novalidate>
         <div class="dialog-head">
           <div>
-            <p class="eyebrow">Fisioterapia geriatrica</p>
-            <h2>Ficha de avaliacao</h2>
+            <p class="eyebrow">Fisioterapia geriátrica</p>
+            <h2>Ficha de avaliação</h2>
           </div>
           <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
         </div>
@@ -655,13 +655,13 @@
               <select id="geriatricAssessmentPatient"></select>
             </label>
             <label>
-              Data da avaliacao
+              Data da avaliação
               <input name="date" type="date">
             </label>
             <label>
               Sexo
               <select name="sex">
-                <option value="">Nao informado</option>
+                <option value="">Não informado</option>
                 <option value="M">Masculino</option>
                 <option value="F">Feminino</option>
               </select>
@@ -710,22 +710,22 @@
         </div>
 
         <div class="form-section">
-          <h3>Avaliacao funcional</h3>
+          <h3>Avaliação funcional</h3>
           <div class="form-grid">
             <label>
-              Deambulacao
+              Deambulação
               <select name="ambulation">
                 <option value="">Selecione</option>
                 <option>Independente</option>
                 <option>Auxilio</option>
-                <option>Nao deambula</option>
+                <option>Não deambula</option>
               </select>
             </label>
             <fieldset>
               <legend>Historico de quedas</legend>
               <div class="choice-row">
                 <label><input type="radio" name="fallsHistory" value="Sim"> Sim</label>
-                <label><input type="radio" name="fallsHistory" value="Nao"> Nao</label>
+                <label><input type="radio" name="fallsHistory" value="Não"> Não</label>
               </div>
               <input name="fallsCount" placeholder="Quantas?">
             </fieldset>
@@ -746,7 +746,7 @@
               <input name="rangeLocation" placeholder="Local">
             </fieldset>
             <label>
-              Avaliacao cognitiva
+              Avaliação cognitiva
               <select name="cognitive">
                 <option value="">Selecione</option>
                 <option>Preservada</option>
@@ -762,7 +762,7 @@
           <h3>Conduta</h3>
           <div class="form-grid">
             <label class="wide">
-              Diagnostico fisioterapeutico
+              Diagnostico fisioterapêutico
               <textarea name="physioDiagnosis" rows="3"></textarea>
             </label>
             <label class="wide">
@@ -774,7 +774,7 @@
               <textarea name="treatmentPlan" rows="3"></textarea>
             </label>
             <label>
-              Frequencia
+              Frequência
               <select name="frequency">
                 <option value="">Selecione</option>
                 <option>1x</option>
@@ -784,7 +784,7 @@
               </select>
             </label>
             <label>
-              Outra frequencia
+              Outra frequência
               <input name="frequencyOther">
             </label>
           </div>
@@ -805,7 +805,7 @@
 
         <div class="dialog-actions">
           <button class="button ghost" value="cancel" formnovalidate type="submit">Cancelar</button>
-          <button class="button primary" value="default" type="submit">Salvar avaliacao</button>
+          <button class="button primary" value="default" type="submit">Salvar avaliação</button>
         </div>
       </form>
     </dialog>
@@ -814,7 +814,7 @@
       <form method="dialog" class="dialog-box" id="passwordForm">
         <div class="dialog-head">
           <div>
-            <p class="eyebrow">Seguranca</p>
+            <p class="eyebrow">Segurança</p>
             <h2>Trocar senha</h2>
           </div>
           <button class="icon-button" value="cancel" formnovalidate aria-label="Fechar" type="submit">×</button>
