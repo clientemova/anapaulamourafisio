@@ -34,18 +34,18 @@ function hasSplitCredential() {
 function safeApiError(error) {
   const message = String(error?.message || error || "");
   if (message.includes("Could not load the default credentials")) {
-    return "Credenciais do Firebase nao configuradas na Vercel.";
+    return "Credenciais do Firebase não configuradas na Vercel.";
   }
   if (message.includes("The database") || message.includes("NOT_FOUND")) {
-    return "Firestore Database nao encontrado. Crie o banco no Firebase.";
+    return "Firestore Database não encontrado. Crie o banco no Firebase.";
   }
   if (message.includes("PERMISSION_DENIED") || error?.code === 7) {
-    return "A conta de servico nao tem permissao para gravar no Firestore.";
+    return "A conta de serviço não tem permissão para gravar no Firestore.";
   }
   if (message.includes("DECODER routines") || message.includes("private_key")) {
-    return "Chave privada do Firebase invalida. Refaça o Base64 do JSON da conta de servico.";
+    return "Chave privada do Firebase inválida. Refaça o Base64 do JSON da conta de serviço.";
   }
-  return "Nao foi possivel concluir a operacao. Verifique /api/health e os logs da Vercel.";
+  return "Não foi possível concluir a operação. Verifique /api/health e os logs da Vercel.";
 }
 
 function publicDebugError(error) {
@@ -337,12 +337,12 @@ async function handleAuth(req, res, url) {
       configured: Boolean(auth),
       authenticated: Boolean(auth && (await isAuthenticated(req))),
       initialPasswordConfigured: Boolean(process.env.INITIAL_ADMIN_PASSWORD),
-      vercelEnvironment: process.env.VERCEL_ENV || "nao informado"
+      vercelEnvironment: process.env.VERCEL_ENV || "não informado"
     });
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/setup") {
-    if (auth) return sendJson(res, 409, { error: "A senha ja foi configurada." });
+    if (auth) return sendJson(res, 409, { error: "A senha já foi configurada." });
     const body = await readBody(req);
     const password = String(body.password || "");
     if (password.length < 6) return sendJson(res, 400, { error: "Use uma senha com pelo menos 6 caracteres." });
@@ -369,7 +369,7 @@ async function handleAuth(req, res, url) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/change-password") {
-    if (!auth || !(await isAuthenticated(req))) return sendJson(res, 401, { error: "Faca login para trocar a senha." });
+    if (!auth || !(await isAuthenticated(req))) return sendJson(res, 401, { error: "Faça login para trocar a senha." });
     const body = await readBody(req);
     if (!verifyPassword(body.currentPassword || "", auth)) return sendJson(res, 401, { error: "Senha atual incorreta." });
     if (String(body.newPassword || "").length < 6) return sendJson(res, 400, { error: "Use uma nova senha com pelo menos 6 caracteres." });
@@ -378,7 +378,7 @@ async function handleAuth(req, res, url) {
     return sendJson(res, 200, { ok: true }, { "Set-Cookie": clearSessionCookie(req) });
   }
 
-  return sendJson(res, 404, { error: "Rota de acesso nao encontrada." });
+  return sendJson(res, 404, { error: "Rota de acesso não encontrada." });
 }
 
 async function deleteByPatientId(collectionName, patientId) {
@@ -402,20 +402,20 @@ async function handleApi(req, res) {
       return sendJson(res, 200, {
         ok: true,
         runtime: "vercel-route",
-        vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
-        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
-        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
-        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+        vercelEnvironment: process.env.VERCEL_ENV || "não informado",
+        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "não configurado",
+        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "não configurado",
+        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "não configurado",
         firestore: { ok: true, write: "ok" }
       });
     } catch (error) {
       return sendJson(res, 500, {
         ok: false,
         runtime: "vercel-route",
-        vercelEnvironment: process.env.VERCEL_ENV || "nao informado",
-        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "nao configurado",
-        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "nao configurado",
-        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "nao configurado",
+        vercelEnvironment: process.env.VERCEL_ENV || "não informado",
+        firebaseServiceAccountBase64: hasBase64Credential() ? "configurado" : "não configurado",
+        firebaseSplitCredential: hasSplitCredential() ? "configurado" : "não configurado",
+        initialAdminPassword: process.env.INITIAL_ADMIN_PASSWORD ? "configurado" : "não configurado",
         firestore: {
           ok: false,
           write: "falhou",
@@ -432,7 +432,7 @@ async function handleApi(req, res) {
 
   const auth = await readAuth();
   if (!auth || !(await isAuthenticated(req))) {
-    return sendJson(res, 401, { error: auth ? "Faca login para acessar." : "Crie a senha de acesso primeiro." });
+    return sendJson(res, 401, { error: auth ? "Faça login para acessar." : "Crie a senha de acesso primeiro." });
   }
 
   const parts = url.pathname.split("/").filter(Boolean);
@@ -453,7 +453,7 @@ async function handleApi(req, res) {
 
     const ref = db.collection(COLLECTIONS.patients).doc(id || "");
     const doc = await ref.get();
-    if (!doc.exists) return sendJson(res, 404, { error: "Paciente nao encontrado." });
+    if (!doc.exists) return sendJson(res, 404, { error: "Paciente não encontrado." });
 
     if (req.method === "PUT") {
       const patient = normalizePatient(await readBody(req), doc.data());
@@ -497,7 +497,7 @@ async function handleApi(req, res) {
 
     const ref = db.collection(COLLECTIONS.appointments).doc(id || "");
     const doc = await ref.get();
-    if (!doc.exists) return sendJson(res, 404, { error: "Agendamento nao encontrado." });
+    if (!doc.exists) return sendJson(res, 404, { error: "Agendamento não encontrado." });
 
     if (req.method === "PUT") {
       const appointment = normalizeAppointment(await readBody(req), doc.data());
@@ -522,10 +522,10 @@ async function handleApi(req, res) {
 
     if (req.method === "GET" && parts[3] === "pdf") {
       const doc = await ref.get();
-      if (!doc.exists) return sendJson(res, 404, { error: "Avaliacao nao encontrada." });
+      if (!doc.exists) return sendJson(res, 404, { error: "Avaliação não encontrada." });
       const assessment = doc.data();
       if (assessment.treatment !== "Limpeza de pele") {
-        return sendJson(res, 400, { error: "PDF disponivel apenas para limpeza de pele no momento." });
+        return sendJson(res, 400, { error: "PDF disponível apenas para limpeza de pele no momento." });
       }
       const patientDoc = assessment.patientId ? await db.collection(COLLECTIONS.patients).doc(assessment.patientId).get() : null;
       const patient = patientDoc?.exists ? patientDoc.data() : {};
@@ -546,7 +546,7 @@ async function handleApi(req, res) {
     }
   }
 
-  return sendJson(res, 405, { error: "Operacao nao suportada." });
+  return sendJson(res, 405, { error: "Operação não suportada." });
 }
 
 module.exports = async function handler(req, res) {
