@@ -1,6 +1,7 @@
 const crypto = require("node:crypto");
 const { admin, db } = require("./_firebase");
 const { buildTreatmentAssessmentPdf, pdfSafeName } = require("./_pdf");
+const { buildHealthPayload } = require("./_health");
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -90,7 +91,7 @@ async function writeAuth(auth) {
 }
 
 async function ensureInitialAuth() {
-  const auth = await ensureInitialAuth();
+  const auth = await readAuth();
   if (auth) return auth;
 
   const initialPassword = String(process.env.INITIAL_ADMIN_PASSWORD || "").trim();
@@ -363,6 +364,11 @@ async function deleteByPatientId(collectionName, patientId) {
 
 async function handleApi(req, res) {
   const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
+
+  if (req.method === "GET" && url.pathname === "/api/health") {
+    const payload = await buildHealthPayload();
+    return sendJson(res, payload.ok ? 200 : 500, payload);
+  }
 
   if (url.pathname.startsWith("/api/auth/")) {
     await handleAuth(req, res, url);
