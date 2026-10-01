@@ -104,7 +104,7 @@ const starterData = {
       patientId: "pac_carlos",
       date: "2026-09-13",
       pain: 4,
-      type: "Reavaliacao",
+      type: "Reavaliação",
       summary: "Flexao de joelho chegou a 105 graus. Edema discreto no fim da tarde.",
       plan: "Manter crioterapia apos treino e aumentar carga gradualmente."
     }
@@ -279,7 +279,7 @@ async function handleAuth(req, res, url) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/change-password") {
-    if (!auth || !isAuthenticated(req)) return sendJson(res, 401, { error: "Faca login para trocar a senha." });
+    if (!auth || !isAuthenticated(req)) return sendJson(res, 401, { error: "Faça login para trocar a senha." });
     const body = await readBody(req);
     const currentPassword = String(body.currentPassword || "");
     const newPassword = String(body.newPassword || "");
@@ -290,7 +290,7 @@ async function handleAuth(req, res, url) {
     return sendJsonWithHeaders(res, 200, { ok: true }, { "Set-Cookie": clearSessionCookie() });
   }
 
-  return sendJson(res, 404, { error: "Rota de acesso nao encontrada." });
+  return sendJson(res, 404, { error: "Rota de acesso não encontrada." });
 }
 
 function normalizePatient(body, existing = {}) {
@@ -528,7 +528,7 @@ function paethPredictor(a, b, c) {
 
 function parsePng(buffer) {
   if (!buffer || buffer.slice(0, 8).toString("hex") !== "89504e470d0a1a0a") {
-    throw new Error("Imagem PNG invalida.");
+    throw new Error("Imagem PNG inválida.");
   }
 
   let offset = 8;
@@ -557,7 +557,7 @@ function parsePng(buffer) {
   }
 
   if (bitDepth !== 8 || ![2, 6].includes(colorType)) {
-    throw new Error("Formato de logo PNG nao suportado.");
+    throw new Error("Formato de logo PNG não suportado.");
   }
 
   const bytesPerPixel = colorType === 6 ? 4 : 3;
@@ -582,7 +582,7 @@ function parsePng(buffer) {
       else if (filter === 2) row[index] = (row[index] + up) & 255;
       else if (filter === 3) row[index] = (row[index] + Math.floor((left + up) / 2)) & 255;
       else if (filter === 4) row[index] = (row[index] + paethPredictor(left, up, upLeft)) & 255;
-      else if (filter !== 0) throw new Error("Filtro PNG nao suportado.");
+      else if (filter !== 0) throw new Error("Filtro PNG não suportado.");
     }
 
     row.copy(raw, targetOffset);
@@ -816,14 +816,14 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     }
   };
 
-  text("Ficha de avaliacao - Limpeza de pele", margin, y, 14, true);
+  text("Ficha de avaliação - Limpeza de pele", margin, y, 14, true);
   y -= 14;
   text(`Gerada em ${formatDatePt(today)}`, margin, y, 8.5, false, "0.37 0.45 0.47");
 
   section("Identificacao pessoal");
   field("Nome", patient.name || "Sem paciente vinculado");
   fieldRow([
-    { label: "Data da avaliacao", value: formatDatePt(assessment.date) },
+    { label: "Data da avaliação", value: formatDatePt(assessment.date) },
     { label: "Nascimento", value: formatDatePt(patient.birthDate) },
     { label: "Idade", value: calculateAgePt(patient.birthDate) }
   ], 3);
@@ -842,31 +842,31 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     { label: "Alergias", value: yesNoTextPdf(assessment.health?.allergy) },
     { label: "Gestante", value: assessment.health?.pregnant || "-" }
   ], 2);
-  field("Procedimentos esteticos faciais", yesNoTextPdf(assessment.health?.previousFacialProcedure));
+  field("Procedimentos estéticos faciais", yesNoTextPdf(assessment.health?.previousFacialProcedure));
 
   section("Habitos e rotina de cuidados");
   fieldRow([
     { label: "Usa protetor solar diariamente?", value: assessment.habits?.sunscreen || "-" },
-    { label: "Frequencia de limpeza facial", value: assessment.habits?.cleaningFrequency || "-" }
+    { label: "Frequência de limpeza facial", value: assessment.habits?.cleaningFrequency || "-" }
   ], 2);
   field("Produtos que utiliza em casa", assessment.habits?.homeProducts || "-");
 
-  section("Avaliacao da pele");
+  section("Avaliação da pele");
   fieldRow([
     { label: "Tipo de pele", value: listTextPdf(assessment.skin?.skinTypes) },
     { label: "Fototipo", value: assessment.skin?.phototype || "-" }
   ], 2);
   fieldRow([
-    { label: "Condicoes observadas", value: listTextPdf(assessment.skin?.observedConditions) },
+    { label: "Condições observadas", value: listTextPdf(assessment.skin?.observedConditions) },
     { label: "Outros", value: assessment.skin?.otherConditions || "-" }
   ], 2);
 
   section("Plano do tratamento");
-  field("Diagnostico estetico", assessment.plan?.diagnosis || "-");
+  field("Diagnostico estético", assessment.plan?.diagnosis || "-");
   field("Objetivo do tratamento", assessment.plan?.objective || "-");
   fieldRow([
     { label: "Procedimento indicado", value: listTextPdf([...(assessment.plan?.indicatedProcedures || []), assessment.plan?.otherProcedure].filter(Boolean)) },
-    { label: "Frequencia recomendada", value: assessment.plan?.recommendedFrequency || "-" }
+    { label: "Frequência recomendada", value: assessment.plan?.recommendedFrequency || "-" }
   ], 2);
   field("Orientacoes ao cliente", assessment.plan?.clientGuidance || "-");
 
@@ -903,7 +903,7 @@ async function handleApi(req, res, url) {
 
   const auth = await readAuth();
   if (!auth || !isAuthenticated(req)) {
-    sendJson(res, 401, { error: auth ? "Faca login para acessar." : "Crie a senha de acesso primeiro." });
+    sendJson(res, 401, { error: auth ? "Faça login para acessar." : "Crie a senha de acesso primeiro." });
     return;
   }
 
@@ -927,7 +927,7 @@ async function handleApi(req, res, url) {
     }
 
     const index = data.patients.findIndex((patient) => patient.id === id);
-    if (index < 0) return sendJson(res, 404, { error: "Paciente nao encontrado." });
+    if (index < 0) return sendJson(res, 404, { error: "Paciente não encontrado." });
 
     if (req.method === "PUT") {
       const patient = normalizePatient(await readBody(req), data.patients[index]);
@@ -957,7 +957,7 @@ async function handleApi(req, res, url) {
     }
 
     const index = data.sessions.findIndex((session) => session.id === id);
-    if (index < 0) return sendJson(res, 404, { error: "Evolucao nao encontrada." });
+    if (index < 0) return sendJson(res, 404, { error: "Evolucao não encontrada." });
 
     if (req.method === "DELETE") {
       data.sessions.splice(index, 1);
@@ -976,7 +976,7 @@ async function handleApi(req, res, url) {
     }
 
     const index = data.appointments.findIndex((appointment) => appointment.id === id);
-    if (index < 0) return sendJson(res, 404, { error: "Agendamento nao encontrado." });
+    if (index < 0) return sendJson(res, 404, { error: "Agendamento não encontrado." });
 
     if (req.method === "PUT") {
       const appointment = normalizeAppointment(await readBody(req), data.appointments[index]);
@@ -1001,12 +1001,12 @@ async function handleApi(req, res, url) {
     }
 
     const index = data.treatmentAssessments.findIndex((assessment) => assessment.id === id);
-    if (index < 0) return sendJson(res, 404, { error: "Avaliacao nao encontrada." });
+    if (index < 0) return sendJson(res, 404, { error: "Avaliação não encontrada." });
 
     if (req.method === "GET" && parts[3] === "pdf") {
       const assessment = data.treatmentAssessments[index];
       if (assessment.treatment !== "Limpeza de pele") {
-        return sendJson(res, 400, { error: "PDF disponivel apenas para limpeza de pele no momento." });
+        return sendJson(res, 400, { error: "PDF disponível apenas para limpeza de pele no momento." });
       }
       const patient = data.patients.find((item) => item.id === assessment.patientId) || {};
       const pdfBuffer = await buildTreatmentAssessmentPdf(assessment, patient);
@@ -1027,7 +1027,7 @@ async function handleApi(req, res, url) {
     }
   }
 
-  sendJson(res, 405, { error: "Operacao nao suportada." });
+  sendJson(res, 405, { error: "Operacao não suportada." });
 }
 
 async function serveStatic(req, res, url) {
@@ -1047,7 +1047,7 @@ async function serveStatic(req, res, url) {
     res.end(data);
   } catch {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Arquivo nao encontrado.");
+    res.end("Arquivo não encontrado.");
   }
 }
 
@@ -1072,7 +1072,7 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     console.error(error);
     sendJson(res, 500, {
-      error: "Nao foi possivel concluir a operacao.",
+      error: "Não foi possível concluir a operação.",
       detail: publicDebugError(error),
       runtime: "server-js"
     });
@@ -1083,7 +1083,7 @@ server.listen(port, host, async () => {
   await ensureDb();
   const shownHost = host === "0.0.0.0" ? "localhost" : host;
   console.log("");
-  console.log("Sistema de gestao de fisioterapia iniciado.");
+  console.log("Sistema de gestão de fisioterapia iniciado.");
   console.log(`Neste computador: http://${shownHost}:${port}`);
   if (host === "0.0.0.0") {
     for (const address of localAddresses()) {
