@@ -1,4 +1,5 @@
 const http = require("node:http");
+const https = require("node:https");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const os = require("node:os");
@@ -190,6 +191,70 @@ function sendJsonWithHeaders(res, status, payload, headers = {}) {
 
 function publicDebugError(error) {
   return String(error?.message || error || "Erro desconhecido").slice(0, 500);
+}
+
+function decodeXml(value) {
+  return String(value || "")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&quot;/g, "\"")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function firstMatch(text, pattern) {
+  return text.match(pattern)?.[1] || "";
+}
+
+function fetchText(url) {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith("https:") ? https : http;
+    const request = client.get(url, { timeout: 8000 }, (response) => {
+      if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+        response.resume();
+        resolve(fetchText(new URL(response.headers.location, url).toString()));
+        return;
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        response.resume();
+        reject(new Error(`Feed respondeu com status ${response.statusCode}.`));
+        return;
+      }
+
+      let data = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+      response.on("end", () => resolve(data));
+    });
+
+    request.on("timeout", () => {
+      request.destroy(new Error("Tempo esgotado ao buscar o versículo."));
+    });
+    request.on("error", reject);
+  });
+}
+
+async function readDailyVerse() {
+  const feed = await fetchText("http://ie6.bibliaonline.com.br/acf/feeds/daily_verses.atom");
+  const entry = firstMatch(feed, /<entry\b[^>]*>([\s\S]*?)<\/entry>/i) || feed;
+  const title = decodeXml(firstMatch(entry, /<title\b[^>]*>([\s\S]*?)<\/title>/i));
+  const content = decodeXml(
+    firstMatch(entry, /<content\b[^>]*>([\s\S]*?)<\/content>/i) ||
+    firstMatch(entry, /<summary\b[^>]*>([\s\S]*?)<\/summary>/i)
+  );
+
+  return {
+    text: content || title || "Versículo indisponível no momento.",
+    reference: title && content && title !== content ? title : "Bíblia Online",
+    source: "http://ie6.bibliaonline.com.br/acf/feeds/daily_verses.atom"
+  };
 }
 
 async function readBody(req) {
@@ -893,6 +958,11 @@ async function handleApi(req, res, url) {
       runtime: "server-js",
       message: "A Vercel esta usando server.js. Confira Root Directory, arquivos antigos e vercel.json."
     });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/daily-verse") {
+    sendJson(res, 200, await readDailyVerse());
     return;
   }
 
