@@ -190,11 +190,27 @@ body.is-locked .app-shell {
   color: rgba(247, 251, 250, 0.86);
 }
 
-.daily-verse-card small {
+.daily-verse-card small,
+#dailyVersesWrapper .dailyVerses.bibleVerse {
   margin-top: 8px;
   color: rgba(247, 251, 250, 0.62);
   font-size: 0.78rem;
   line-height: 1.35;
+}
+
+#dailyVersesWrapper {
+  margin-top: 8px;
+  color: rgba(247, 251, 250, 0.86);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+#dailyVersesWrapper a {
+  color: #c9f4ef;
+}
+
+#dailyVersesWrapper .dailyVerses.bibleVerse {
+  color: rgba(247, 251, 250, 0.62);
 }
 
 .workspace {
