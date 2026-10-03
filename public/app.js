@@ -101,6 +101,21 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => toast.classList.remove("is-visible"), 2600);
 }
 
+async function loadDailyVerse() {
+  const text = $("#dailyVerseText");
+  const reference = $("#dailyVerseReference");
+  if (!text || !reference) return;
+
+  try {
+    const verse = await api("/api/daily-verse");
+    text.textContent = verse.text || "Versículo indisponível no momento.";
+    reference.textContent = verse.reference || "Bíblia Online";
+  } catch (error) {
+    text.textContent = "Não foi possível carregar o versículo de hoje.";
+    reference.textContent = "Bíblia Online";
+  }
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     headers: { "Content-Type": "application/json" },
@@ -1115,6 +1130,7 @@ $("#geriatricAssessmentPatient").addEventListener("change", (event) => {
 
 $("#agendaDate").value = today;
 setupSignaturePads();
+loadDailyVerse();
 checkAuth().catch((error) => {
   showAuth("login");
   showToast(error.message);

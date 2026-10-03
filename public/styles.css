@@ -174,7 +174,8 @@ body.is-locked .app-shell {
 }
 
 .local-note strong,
-.local-note span {
+.local-note span,
+.local-note small {
   display: block;
 }
 
@@ -183,6 +184,17 @@ body.is-locked .app-shell {
   color: rgba(247, 251, 250, 0.72);
   font-size: 0.88rem;
   line-height: 1.4;
+}
+
+.daily-verse-card span {
+  color: rgba(247, 251, 250, 0.86);
+}
+
+.daily-verse-card small {
+  margin-top: 8px;
+  color: rgba(247, 251, 250, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .workspace {
