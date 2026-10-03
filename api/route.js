@@ -1,4 +1,6 @@
 const crypto = require("node:crypto");
+const http = require("node:http");
+const https = require("node:https");
 const { admin, db } = require("./_firebase");
 const { buildTreatmentAssessmentPdf, pdfSafeName } = require("./_pdf");
 const { buildHealthPayload } = require("./_health");
@@ -51,6 +53,70 @@ function safeApiError(error) {
 function publicDebugError(error) {
   const message = String(error?.message || error || "Erro desconhecido");
   return message.slice(0, 500);
+}
+
+function decodeXml(value) {
+  return String(value || "")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&quot;/g, "\"")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function firstMatch(text, pattern) {
+  return text.match(pattern)?.[1] || "";
+}
+
+function fetchText(url) {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith("https:") ? https : http;
+    const request = client.get(url, { timeout: 8000 }, (response) => {
+      if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+        response.resume();
+        resolve(fetchText(new URL(response.headers.location, url).toString()));
+        return;
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        response.resume();
+        reject(new Error(`Feed respondeu com status ${response.statusCode}.`));
+        return;
+      }
+
+      let data = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+      response.on("end", () => resolve(data));
+    });
+
+    request.on("timeout", () => {
+      request.destroy(new Error("Tempo esgotado ao buscar o versículo."));
+    });
+    request.on("error", reject);
+  });
+}
+
+async function readDailyVerse() {
+  const feed = await fetchText("http://ie6.bibliaonline.com.br/acf/feeds/daily_verses.atom");
+  const entry = firstMatch(feed, /<entry\b[^>]*>([\s\S]*?)<\/entry>/i) || feed;
+  const title = decodeXml(firstMatch(entry, /<title\b[^>]*>([\s\S]*?)<\/title>/i));
+  const content = decodeXml(
+    firstMatch(entry, /<content\b[^>]*>([\s\S]*?)<\/content>/i) ||
+    firstMatch(entry, /<summary\b[^>]*>([\s\S]*?)<\/summary>/i)
+  );
+
+  return {
+    text: content || title || "Versículo indisponível no momento.",
+    reference: title && content && title !== content ? title : "Bíblia Online",
+    source: "http://ie6.bibliaonline.com.br/acf/feeds/daily_verses.atom"
+  };
 }
 
 function makeId(prefix) {
@@ -423,6 +489,12 @@ async function handleApi(req, res) {
         }
       });
     }
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/daily-verse") {
+    return sendJson(res, 200, await readDailyVerse(), {
+      "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400"
+    });
   }
 
   if (url.pathname.startsWith("/api/auth/")) {
