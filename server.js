@@ -207,8 +207,52 @@ function decodeXml(value) {
     .trim();
 }
 
+function decodeEntities(value) {
+  return String(value || "")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&quot;/g, "\"")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .trim();
+}
+
 function firstMatch(text, pattern) {
   return text.match(pattern)?.[1] || "";
+}
+
+function parseFeedLinks(html) {
+  const links = [];
+  const pattern = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let match;
+  while ((match = pattern.exec(html))) {
+    links.push({
+      url: decodeEntities(match[1]),
+      label: decodeXml(match[2])
+    });
+  }
+  return links;
+}
+
+function extractVerseFromHtml(html) {
+  const candidates = [
+    /<div[^>]+class=["'][^"']*(?:jss\d+\s+)?versiculo[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+    /<p[^>]+class=["'][^"']*versiculo[^"']*["'][^>]*>([\s\S]*?)<\/p>/i,
+    /<span[^>]+class=["'][^"']*texto[^"']*["'][^>]*>([\s\S]*?)<\/span>/i,
+    /<article[^>]*>([\s\S]*?)<\/article>/i,
+    /<main[^>]*>([\s\S]*?)<\/main>/i
+  ];
+
+  for (const pattern of candidates) {
+    const text = decodeXml(firstMatch(html, pattern));
+    if (text.length > 25 && text.length < 600) return text;
+  }
+
+  const meta = firstMatch(html, /<meta[^>]+(?:property|name)=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
+  const metaText = decodeXml(meta);
+  return metaText.length > 25 ? metaText : "";
 }
 
 function fetchText(url) {
@@ -245,10 +289,35 @@ async function readDailyVerse() {
   const feed = await fetchText("http://ie6.bibliaonline.com.br/acf/feeds/daily_verses.atom");
   const entry = firstMatch(feed, /<entry\b[^>]*>([\s\S]*?)<\/entry>/i) || feed;
   const title = decodeXml(firstMatch(entry, /<title\b[^>]*>([\s\S]*?)<\/title>/i));
+  const rawContent = firstMatch(entry, /<content\b[^>]*>([\s\S]*?)<\/content>/i) ||
+    firstMatch(entry, /<summary\b[^>]*>([\s\S]*?)<\/summary>/i);
+  const contentHtml = decodeEntities(rawContent);
+  const links = parseFeedLinks(contentHtml);
+  const selected = links.find((link) => /\/acf\/[^/]+\/\d+\/\d+/i.test(link.url)) || links[0];
   const content = decodeXml(
     firstMatch(entry, /<content\b[^>]*>([\s\S]*?)<\/content>/i) ||
     firstMatch(entry, /<summary\b[^>]*>([\s\S]*?)<\/summary>/i)
   );
+
+  if (selected?.url) {
+    try {
+      const page = await fetchText(selected.url);
+      const verseText = extractVerseFromHtml(page);
+      if (verseText) {
+        return {
+          text: verseText,
+          reference: selected.label || title || "Bíblia Online",
+          source: selected.url
+        };
+      }
+    } catch {
+      return {
+        text: selected.label || content || title || "Versículo indisponível no momento.",
+        reference: "Bíblia Online",
+        source: selected.url
+      };
+    }
+  }
 
   return {
     text: content || title || "Versículo indisponível no momento.",
