@@ -950,6 +950,65 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     }
   };
 
+  if (assessment.treatment === "Fisioterapia geriatrica") {
+    text("Ficha de avaliacao - Fisioterapia geriatrica", margin, y, 14, true);
+    y -= 14;
+    text(`Gerada em ${formatDatePt(today)}`, margin, y, 8.5, false, "0.37 0.45 0.47");
+
+    section("Dados do paciente");
+    field("Nome", patient.name || "Sem paciente vinculado");
+    fieldRow([
+      { label: "Data da avaliacao", value: formatDatePt(assessment.date) },
+      { label: "Nascimento", value: formatDatePt(patient.birthDate) },
+      { label: "Idade", value: calculateAgePt(patient.birthDate) }
+    ], 3);
+    fieldRow([
+      { label: "Sexo", value: assessment.sex || "-" },
+      { label: "Telefone", value: patient.phone || "-" },
+      { label: "Responsavel", value: assessment.identification?.responsible || "-" }
+    ], 3);
+
+    section("Queixa e historia");
+    field("Queixa principal", assessment.complaint || "-");
+    field("Historia da doenca atual", assessment.currentDiseaseHistory || "-");
+
+    section("Antecedentes e medicamentos");
+    field("Antecedentes", listTextPdf([...(assessment.history?.antecedents || []), assessment.history?.otherAntecedents].filter(Boolean)));
+    field("Medicamentos em uso", assessment.history?.medicationUse || "-");
+
+    section("Avaliacao funcional");
+    fieldRow([
+      { label: "Deambulacao", value: assessment.functional?.ambulation || "-" },
+      { label: "Historico de quedas", value: assessment.functional?.fallsHistory || "-" },
+      { label: "Numero de quedas", value: assessment.functional?.fallsCount || "-" }
+    ], 3);
+    fieldRow([
+      { label: "Forca MMSS", value: assessment.functional?.upperStrength || "-" },
+      { label: "Forca MMII", value: assessment.functional?.lowerStrength || "-" },
+      { label: "Cognicao", value: assessment.functional?.cognitive || "-" }
+    ], 3);
+    fieldRow([
+      { label: "Amplitude de movimento", value: assessment.functional?.rangeOfMotion || "-" },
+      { label: "Local", value: assessment.functional?.rangeLocation || "-" }
+    ], 2);
+
+    section("Diagnostico e plano");
+    field("Diagnostico fisioterapeutico", assessment.plan?.diagnosis || "-");
+    field("Objetivo", assessment.plan?.objective || "-");
+    field("Plano terapeutico", assessment.plan?.treatmentPlan || "-");
+    field("Frequencia recomendada", assessment.plan?.recommendedFrequency || "-");
+
+    section("Assinatura");
+    ensureSpace(78);
+    y -= 66;
+    signature("Assinatura do profissional", "ProfessionalSignature", professionalSignature, margin);
+
+    finishPage();
+    pdf.setObject(pagesId, `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`);
+    const catalogId = pdf.addObject(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+    return pdf.build(catalogId);
+  }
+
   text("Ficha de avaliação - Limpeza de pele", margin, y, 14, true);
   y -= 14;
   text(`Gerada em ${formatDatePt(today)}`, margin, y, 8.5, false, "0.37 0.45 0.47");
@@ -1144,12 +1203,10 @@ async function handleApi(req, res, url) {
 
     if (req.method === "GET" && parts[3] === "pdf") {
       const assessment = data.treatmentAssessments[index];
-      if (assessment.treatment !== "Limpeza de pele") {
-        return sendJson(res, 400, { error: "PDF disponível apenas para limpeza de pele no momento." });
-      }
       const patient = data.patients.find((item) => item.id === assessment.patientId) || {};
       const pdfBuffer = await buildTreatmentAssessmentPdf(assessment, patient);
-      const filename = `ficha-limpeza-pele-${pdfSafeName(patient.name)}-${assessment.date || today}.pdf`;
+      const prefix = assessment.treatment === "Fisioterapia geriatrica" ? "ficha-geriatrica" : "ficha-limpeza-pele";
+      const filename = `${prefix}-${pdfSafeName(patient.name)}-${assessment.date || today}.pdf`;
       res.writeHead(200, {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
