@@ -667,13 +667,11 @@ async function handleApi(req, res) {
       const doc = await ref.get();
       if (!doc.exists) return sendJson(res, 404, { error: "Avaliação não encontrada." });
       const assessment = doc.data();
-      if (assessment.treatment !== "Limpeza de pele") {
-        return sendJson(res, 400, { error: "PDF disponível apenas para limpeza de pele no momento." });
-      }
       const patientDoc = assessment.patientId ? await db.collection(COLLECTIONS.patients).doc(assessment.patientId).get() : null;
       const patient = patientDoc?.exists ? patientDoc.data() : {};
       const pdfBuffer = await buildTreatmentAssessmentPdf(assessment, patient);
-      const filename = `ficha-limpeza-pele-${pdfSafeName(patient.name)}-${assessment.date || today()}.pdf`;
+      const prefix = assessment.treatment === "Fisioterapia geriatrica" ? "ficha-geriatrica" : "ficha-limpeza-pele";
+      const filename = `${prefix}-${pdfSafeName(patient.name)}-${assessment.date || today()}.pdf`;
       res.writeHead(200, {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
