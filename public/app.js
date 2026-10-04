@@ -73,12 +73,20 @@ function assessmentById(id) {
   return state.treatmentAssessments.find((assessment) => assessment.id === id);
 }
 
+function isGeriatricTreatment(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .includes("geriatrica");
+}
+
 function formatTreatmentName(value) {
-  return value === "Fisioterapia geriatrica" ? "Fisioterapia geriátrica" : value;
+  return isGeriatricTreatment(value) ? "Fisioterapia geriátrica" : value;
 }
 
 function treatmentSummary(assessment) {
-  if (assessment.treatment === "Fisioterapia geriatrica") {
+  if (isGeriatricTreatment(assessment.treatment)) {
     return {
       frequency: assessment.plan?.recommendedFrequency || "Sem frequência",
       primary: assessment.plan?.diagnosis || assessment.complaint || "Sem diagnóstico registrado.",
@@ -506,7 +514,7 @@ function renderSession(session) {
 }
 
 function renderTreatmentAssessment(assessment) {
-  return assessment.treatment === "Fisioterapia geriatrica"
+  return isGeriatricTreatment(assessment.treatment)
     ? renderGeriatricAssessment(assessment)
     : renderSkinAssessment(assessment);
 }
@@ -531,7 +539,7 @@ function renderSkinAssessment(assessment) {
       <p class="meta">Procedimento: ${escapeHtml(procedures.join(", ") || "Não informado")}</p>
       <p class="meta">Condições: ${escapeHtml(conditions.join(", ") || "Não informadas")}</p>
       <div class="item-actions">
-        <button class="button ghost" type="button" data-pdf-skin-assessment="${assessment.id}">Gerar PDF</button>
+        <button class="button ghost" type="button" data-pdf-assessment="${assessment.id}">Gerar PDF</button>
         <button class="button ghost" type="button" data-delete-skin-assessment="${assessment.id}">Remover</button>
       </div>
     </article>
@@ -554,6 +562,7 @@ function renderGeriatricAssessment(assessment) {
       <p class="meta">Deambulação: ${escapeHtml(assessment.functional?.ambulation || "Não informada")}</p>
       <p class="meta">Antecedentes: ${escapeHtml(antecedents.join(", ") || "Não informados")}</p>
       <div class="item-actions">
+        <button class="button ghost" type="button" data-pdf-assessment="${assessment.id}">Gerar PDF</button>
         <button class="button ghost" type="button" data-delete-skin-assessment="${assessment.id}">Remover</button>
       </div>
     </article>
@@ -579,9 +588,6 @@ function renderTreatments() {
 
 function renderTreatmentCard(assessment) {
   const summary = treatmentSummary(assessment);
-  const pdfButton = assessment.treatment === "Limpeza de pele"
-    ? `<button class="button ghost" type="button" data-pdf-skin-assessment="${assessment.id}">Gerar PDF</button>`
-    : "";
 
   return `
     <article class="schedule-card">
@@ -593,7 +599,7 @@ function renderTreatmentCard(assessment) {
       </div>
       <div class="stack">
         <button class="button ghost" type="button" data-select-patient="${assessment.patientId}">Ver paciente</button>
-        ${pdfButton}
+        <button class="button ghost" type="button" data-pdf-assessment="${assessment.id}">Gerar PDF</button>
         <button class="button ghost" type="button" data-delete-skin-assessment="${assessment.id}">Remover</button>
       </div>
     </article>
@@ -799,7 +805,7 @@ function captureSignatures(form) {
   });
 }
 
-async function downloadSkinAssessmentPdf(id) {
+async function downloadAssessmentPdf(id) {
   const response = await fetch(`/api/treatment-assessments/${id}/pdf`, { credentials: "same-origin" });
   if (response.status === 401) showAuth("login");
   if (!response.ok) {
@@ -809,7 +815,7 @@ async function downloadSkinAssessmentPdf(id) {
 
   const blob = await response.blob();
   const disposition = response.headers.get("Content-Disposition") || "";
-  const filename = disposition.match(/filename="([^"]+)"/)?.[1] || "ficha-limpeza-pele.pdf";
+  const filename = disposition.match(/filename="([^"]+)"/)?.[1] || "ficha-avaliacao.pdf";
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -1019,10 +1025,10 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
-  const pdfSkinAssessmentButton = event.target.closest("[data-pdf-skin-assessment]");
-  if (pdfSkinAssessmentButton) {
+  const pdfAssessmentButton = event.target.closest("[data-pdf-assessment], [data-pdf-skin-assessment]");
+  if (pdfAssessmentButton) {
     try {
-      await downloadSkinAssessmentPdf(pdfSkinAssessmentButton.dataset.pdfSkinAssessment);
+      await downloadAssessmentPdf(pdfAssessmentButton.dataset.pdfAssessment || pdfAssessmentButton.dataset.pdfSkinAssessment);
       showToast("PDF gerado.");
     } catch (error) {
       showToast(error.message);
