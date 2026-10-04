@@ -85,6 +85,14 @@ function firstMatch(text, pattern) {
   return text.match(pattern)?.[1] || "";
 }
 
+function isGeriatricTreatment(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .includes("geriatrica");
+}
+
 function parseFeedLinks(html) {
   const links = [];
   const pattern = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
@@ -670,7 +678,7 @@ async function handleApi(req, res) {
       const patientDoc = assessment.patientId ? await db.collection(COLLECTIONS.patients).doc(assessment.patientId).get() : null;
       const patient = patientDoc?.exists ? patientDoc.data() : {};
       const pdfBuffer = await buildTreatmentAssessmentPdf(assessment, patient);
-      const prefix = assessment.treatment === "Fisioterapia geriatrica" ? "ficha-geriatrica" : "ficha-limpeza-pele";
+      const prefix = isGeriatricTreatment(assessment.treatment) ? "ficha-geriatrica" : "ficha-limpeza-pele";
       const filename = `${prefix}-${pdfSafeName(patient.name)}-${assessment.date || today()}.pdf`;
       res.writeHead(200, {
         "Content-Type": "application/pdf",

@@ -45,6 +45,14 @@ function listTextPdf(items, fallback = "-") {
   return values.length ? values.join(", ") : fallback;
 }
 
+function isGeriatricTreatment(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .includes("geriatrica");
+}
+
 function yesNoTextPdf(item) {
   if (!item?.answer && !item?.details) return "-";
   return [item.answer, item.details].filter(Boolean).join(" - ");
@@ -371,7 +379,7 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
     }
   };
 
-  if (assessment.treatment === "Fisioterapia geriatrica") {
+  if (isGeriatricTreatment(assessment.treatment)) {
     text("Ficha de avaliacao - Fisioterapia geriatrica", margin, y, 14, true);
     y -= 14;
     text(`Gerada em ${formatDatePt(today)}`, margin, y, 8.5, false, "0.37 0.45 0.47");
