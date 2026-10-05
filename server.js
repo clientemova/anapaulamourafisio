@@ -840,7 +840,7 @@ async function buildTreatmentAssessmentPdf(assessment, patient) {
 
   const fontId = pdf.addObject("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   const boldFontId = pdf.addObject("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  const logoImage = addPngImage(pdf, parsePng(await fs.readFile(path.join(publicDir, "logo-sistema-v2.png"))));
+  const logoImage = addPngImage(pdf, parsePng(await fs.readFile(path.join(publicDir, "icone-anapaula.png"))));
   const clientSignature = addPngImage(pdf, parsePngDataUrl(assessment.signatures?.client));
   const professionalSignature = addPngImage(pdf, parsePngDataUrl(assessment.signatures?.professional));
   const xObjects = [
