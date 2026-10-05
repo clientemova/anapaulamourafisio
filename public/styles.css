@@ -193,10 +193,28 @@ body.is-locked .app-shell {
 
 .nav-icon {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
-  fill: #ffffff;
+  background: #ffffff;
+  -webkit-mask: var(--nav-icon) center / contain no-repeat;
+  mask: var(--nav-icon) center / contain no-repeat;
+}
+
+.nav-icon-inicio {
+  --nav-icon: url("/icons/inicio.svg");
+}
+
+.nav-icon-pacientes {
+  --nav-icon: url("/icons/pacientes.svg");
+}
+
+.nav-icon-tratamentos {
+  --nav-icon: url("/icons/tratamento.svg");
+}
+
+.nav-icon-agenda {
+  --nav-icon: url("/icons/agenda.svg");
 }
 
 .local-note {
