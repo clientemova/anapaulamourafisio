@@ -191,6 +191,14 @@ body.is-locked .app-shell {
   background: rgba(255, 255, 255, 0.18);
 }
 
+.nav-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: #ffffff;
+}
+
 .local-note {
   margin-top: auto;
   padding: 14px;
