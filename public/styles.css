@@ -74,7 +74,7 @@ body.is-locked .app-shell {
 .auth-card {
   display: grid;
   width: min(430px, 100%);
-  gap: 18px;
+  gap: 20px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 24px;
@@ -88,8 +88,7 @@ body.is-locked .app-shell {
 
 .auth-brand-wide {
   display: grid;
-  justify-items: start;
-  gap: 8px;
+  justify-items: center;
 }
 
 .auth-logo-wide {
@@ -97,12 +96,21 @@ body.is-locked .app-shell {
   width: min(360px, 100%);
   max-height: 112px;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
 }
 
-.auth-brand-wide span {
-  color: var(--muted);
-  font-size: 0.9rem;
+.auth-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.auth-copy .muted {
+  margin-bottom: 0;
+}
+
+.auth-password-field {
+  display: block;
+  margin-top: 2px;
 }
 
 .sidebar {

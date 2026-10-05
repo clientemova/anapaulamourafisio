@@ -13,19 +13,18 @@
       <form class="auth-card" id="authForm">
         <div class="auth-brand auth-brand-wide">
           <img class="auth-logo-wide" src="/logo-login.png" alt="Dra. Paula Moura Fisioterapeuta">
-          <span>Acesso protegido</span>
         </div>
 
-        <div>
+        <div class="auth-copy">
           <p class="eyebrow" id="authEyebrow">Segurança</p>
           <h1 id="authTitle">Entrar na plataforma</h1>
           <p class="muted" id="authText">Digite a senha para acessar os dados da clínica.</p>
           <p class="auth-alert" id="authAlert" hidden></p>
         </div>
 
-        <label>
-          Senha
-          <input id="authPassword" name="password" type="password" required minlength="6" autocomplete="current-password">
+        <label class="auth-password-field">
+          <span class="sr-only">Senha</span>
+          <input id="authPassword" name="password" type="password" required minlength="6" autocomplete="current-password" placeholder="Digite sua senha">
         </label>
 
         <button class="button primary" id="authSubmit" type="submit">Entrar</button>
